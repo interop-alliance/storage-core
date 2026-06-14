@@ -1,5 +1,16 @@
 # @interop/storage-core Changelog
 
+## 0.2.0 - TBD
+
+### Added
+
+- `BackendDescriptor.features?: string[]` -- an additive, optional capability
+  vocabulary a backend advertises so clients can gate behavior on what it
+  actually supports. Currently defined tokens (EDV-over-WAS): `encrypted-documents`,
+  `blinded-index-query`, `conditional-writes`, `chunked-streams`. The vocabulary
+  is open and clients MUST ignore unrecognized tokens; an absent feature means
+  the backend makes no claim to that affordance.
+
 ## 0.1.0 - TBD
 
 ### Added
