@@ -1,6 +1,6 @@
 # @interop/storage-core Changelog
 
-## 0.2.0 - TBD
+## 0.2.0 - 2026-06-
 
 ### Added
 
@@ -11,7 +11,7 @@
   is open and clients MUST ignore unrecognized tokens; an absent feature means
   the backend makes no claim to that affordance.
 
-## 0.1.0 - TBD
+## 0.1.0 - 2026-06-13
 
 ### Added
 
