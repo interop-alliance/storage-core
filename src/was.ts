@@ -207,19 +207,17 @@ export interface ResourceMetadata {
  *   that survives a restart (`durable`) or only in memory (`volatile`). Spec
  *   default: `durable`.
  * - `features` -- the optional capability vocabulary a backend advertises so
- *   clients can gate behavior on what the backend actually supports. Additive
- *   and optional: an omitted `features` (or one not listing a given token)
- *   means the backend makes no claim to that affordance, so clients MUST treat
- *   an absent feature as unsupported rather than assuming a default. The
- *   currently defined tokens (EDV-over-WAS / encrypted collections):
- *     - `encrypted-documents` -- the backend stores and returns opaque
- *       client-encrypted documents (e.g. `application/edv+json` JWE envelopes)
- *       faithfully; the signal a client's encryption codec gates on.
- *     - `blinded-index-query` -- the backend serves the blinded-index profile
- *       of the reserved `/query` endpoint.
+ *   clients can gate behavior on the optional _server affordances_ the backend
+ *   actually provides. Additive and optional: an omitted `features` (or one not
+ *   listing a given token) means the backend makes no claim to that affordance,
+ *   so clients MUST treat an absent feature as unsupported rather than assuming
+ *   a default. Each token names something the server must actively do. The
+ *   currently defined tokens:
  *     - `conditional-writes` -- the backend enforces previous+1 `sequence` /
  *       `If-Match` conditional writes (a general WAS mechanism EDV is the first
  *       customer for).
+ *     - `blinded-index-query` -- the backend serves the blinded-index profile
+ *       of the reserved `/query` endpoint.
  *     - `chunked-streams` -- the backend supports chunk addressing for large
  *       blobs (the reserved `/{resourceId}/chunks/{n}` sub-segment).
  *   The vocabulary is open: backends MAY advertise additional, profile-defined

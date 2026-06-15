@@ -1,5 +1,18 @@
 # @interop/storage-core Changelog
 
+## 0.2.1 - TBD
+
+### Changed
+
+- Corrected the documented `BackendDescriptor.features` vocabulary:
+  `encrypted-documents` is removed. Client-side encryption is not a backend
+  capability -- an encrypted document is opaque client-encrypted JSON any
+  document-capable backend stores faithfully with no server cooperation, and
+  whether a Collection is encrypted varies per-Collection on the same backend.
+  The defined tokens are now the genuine server affordances: `conditional-writes`,
+  `blinded-index-query`, `chunked-streams`. Docs-only -- `features` remains
+  `string[]`, so no type change.
+
 ## 0.2.0 - 2026-06-14
 
 ### Added
