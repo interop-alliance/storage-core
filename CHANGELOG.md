@@ -1,5 +1,15 @@
 # @interop/storage-core Changelog
 
+## Unreleased - TBD
+
+### Added
+
+- `ProblemTypes.PRECONDITION_FAILED` (`#precondition-failed`, status `412`) -- a
+  conditional write's `If-Match` / `If-None-Match` precondition evaluated false
+  (stale `ETag`, or a create-if-absent target that already exists). Header-driven
+  and deliberately distinct from the `409` conflict kinds; advertised by backends
+  carrying the `conditional-writes` feature. Additive, so no type change.
+
 ## 0.2.1 - 2026-06-14
 
 ### Changed

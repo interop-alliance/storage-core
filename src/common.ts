@@ -78,6 +78,20 @@ export const ProblemTypes = {
    */
   UNSUPPORTED_BACKEND: `${SPEC_URL}#unsupported-backend`,
 
+  /**
+   * A conditional write's `If-Match` / `If-None-Match` precondition evaluated
+   * false: the Resource's current `ETag` did not match, or a create-if-absent
+   * (`If-None-Match: *`) target already exists. Typical status 412.
+   *
+   * Deliberately distinct from the header-less `409` conflict kinds
+   * (`id-conflict`, `reserved-id`, `unsupported-backend`): a `412` is only ever
+   * the result of an explicit conditional request header being evaluated, and
+   * is only observable by a caller already authorized to write the target (an
+   * under-authorized caller receives the privacy-merged `not-found` instead).
+   * Advertised by backends carrying the `conditional-writes` feature.
+   */
+  PRECONDITION_FAILED: `${SPEC_URL}#precondition-failed`,
+
   /** The request body is missing or invalid (missing required fields, etc.). */
   INVALID_REQUEST_BODY: `${SPEC_URL}#invalid-request-body`,
 
@@ -172,6 +186,7 @@ export const ProblemStatusCodes: Record<ProblemType, number> = {
   [ProblemTypes.ID_CONFLICT]: 409,
   [ProblemTypes.RESERVED_ID]: 409,
   [ProblemTypes.UNSUPPORTED_BACKEND]: 409,
+  [ProblemTypes.PRECONDITION_FAILED]: 412,
   [ProblemTypes.INVALID_REQUEST_BODY]: 400,
   [ProblemTypes.MISSING_CONTENT_TYPE]: 400,
   [ProblemTypes.MISSING_AUTHORIZATION]: 401,
