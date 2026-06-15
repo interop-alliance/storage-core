@@ -152,6 +152,15 @@ export interface CollectionResourcesList {
   type: string[]
   totalItems: number
   items: ResourceSummary[]
+  /**
+   * Pagination continuation link (spec "Pagination"). When present, a URL the
+   * client dereferences (with the same authorization) to retrieve the following
+   * page; the server bakes the opaque `cursor` (and any `limit`) into it.
+   * Present if and only if more items may follow -- its absence is the
+   * authoritative end-of-list signal (do not infer page count from
+   * `totalItems`). Omitted by a server that returns every item in one response.
+   */
+  next?: string
 }
 
 /**

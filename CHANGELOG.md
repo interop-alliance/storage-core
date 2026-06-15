@@ -1,5 +1,20 @@
 # @interop/storage-core Changelog
 
+## 0.2.3 - TBD
+
+### Added
+
+- `ProblemTypes.INVALID_CURSOR` (`#invalid-cursor`, status `400`) -- a pagination
+  `cursor` query parameter is malformed or can no longer be honored (spec
+  "Pagination"). Like `precondition-failed`, it is only ever observable by a
+  caller already authorized to list the target (an under-authorized caller gets
+  the privacy-merged `not-found`). Wired into `ProblemStatusCodes`.
+- `CollectionResourcesList.next?: string` -- the optional pagination
+  continuation link (spec "Pagination"): a URL the client dereferences for the
+  following page, present if and only if more items may follow (its absence is
+  the authoritative end-of-list signal). Omitted by a server that returns every
+  item in one response, so the field is optional and additive.
+
 ## 0.2.2 - 2026-06-14
 
 ### Added

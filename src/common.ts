@@ -95,6 +95,16 @@ export const ProblemTypes = {
   /** The request body is missing or invalid (missing required fields, etc.). */
   INVALID_REQUEST_BODY: `${SPEC_URL}#invalid-request-body`,
 
+  /**
+   * A pagination `cursor` query parameter is malformed or can no longer be
+   * honored (e.g. an expired snapshot); see the spec "Pagination" section.
+   * Typical status 400. Like `precondition-failed`, it is only ever observable
+   * by a caller already authorized to list the target -- a server verifies
+   * authorization before validating the cursor, so an under-authorized caller
+   * receives the privacy-merged `not-found` instead.
+   */
+  INVALID_CURSOR: `${SPEC_URL}#invalid-cursor`,
+
   /** A required `Content-Type` header is missing. */
   MISSING_CONTENT_TYPE: `${SPEC_URL}#missing-content-type`,
 
@@ -188,6 +198,7 @@ export const ProblemStatusCodes: Record<ProblemType, number> = {
   [ProblemTypes.UNSUPPORTED_BACKEND]: 409,
   [ProblemTypes.PRECONDITION_FAILED]: 412,
   [ProblemTypes.INVALID_REQUEST_BODY]: 400,
+  [ProblemTypes.INVALID_CURSOR]: 400,
   [ProblemTypes.MISSING_CONTENT_TYPE]: 400,
   [ProblemTypes.MISSING_AUTHORIZATION]: 401,
   [ProblemTypes.INVALID_AUTHORIZATION_HEADER]: 400,
