@@ -239,6 +239,71 @@ export interface BackendDescriptor {
   storageMode?: Array<'document' | 'blob'>
   persistence?: 'durable' | 'volatile'
   features?: string[]
+  /**
+   * The provider adapter id of a registered `external` backend (e.g.
+   * `google-drive`); selects the code that operates the connection. Absent on
+   * the server-managed `default` backend.
+   */
+  provider?: string
+  /**
+   * The sanitized (secret-free) connection state of a registered `external`
+   * backend, as returned on every read path. Absent on the server-managed
+   * `default` backend. The secret-bearing write shape is
+   * {@link BackendConnectionInput}, which a server never serializes back.
+   */
+  connection?: BackendConnectionPublic
+}
+
+/**
+ * The sanitized, secret-free view of a registered `external` backend's
+ * connection, as it appears on every read path (`GET /space/:id/backends`, the
+ * register response). The secret-bearing write shape is
+ * {@link BackendConnectionInput}; a server never serializes that back to a
+ * client -- only this public projection.
+ *
+ * - `kind` -- the connection family (e.g. `oauth2`), mirrors the write input.
+ * - `status` -- the registered connection's lifecycle: `registered` (recorded
+ *   but not yet exchanged for live tokens), `connected` (live), `expired`,
+ *   `revoked`, or `unreachable`.
+ * - `account` / `scope` / `connectedAt` / `rootFolderName` -- optional public
+ *   metadata a provider adapter may surface; never secret material.
+ */
+export interface BackendConnectionPublic {
+  kind: string
+  status: 'registered' | 'connected' | 'expired' | 'revoked' | 'unreachable'
+  account?: string
+  scope?: string
+  connectedAt?: string
+  rootFolderName?: string
+}
+
+/**
+ * The write-side connection envelope a client supplies when registering an
+ * `external` backend (`POST`/`PUT /space/:id/backends`). Deliberately open and
+ * secret-bearing -- it carries provider-specific grant material (e.g. an OAuth
+ * `authorizationCode` or `refreshToken`) under arbitrary keys, of which only the
+ * {@link BackendConnectionPublic} subset is ever read back. `kind` names the
+ * connection family so the provider adapter can interpret the rest.
+ */
+export interface BackendConnectionInput {
+  kind: string
+  [key: string]: unknown
+}
+
+/**
+ * The request body shape for registering an `external` backend
+ * (`POST`/`PUT /space/:id/backends`). `id` is the registration id under the
+ * Space; `provider` selects the adapter; `connection` carries the (secret-
+ * bearing) grant material. The remaining fields mirror {@link BackendDescriptor}.
+ */
+export interface BackendRegistration {
+  id: string
+  name?: string
+  managedBy?: 'external'
+  provider: string
+  storageMode?: Array<'document' | 'blob'>
+  features?: string[]
+  connection: BackendConnectionInput
 }
 
 /**
