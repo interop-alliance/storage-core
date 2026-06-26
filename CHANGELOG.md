@@ -1,14 +1,42 @@
 # @interop/storage-core Changelog
 
+## Unreleased - TBD
+
+### Added
+
+- Backend registration wire shapes (spec "Backends"), the client to server
+  contract for registering an `external` ("Bring Your Own Storage") backend
+  against a Space. The types enforce the write-vs-read split: a
+  `BackendRegistration` POST/PUT body carries a secret-bearing `connection`, but
+  every read path returns only the sanitized public projection.
+  - `BackendRegistration` -- the register body shape:
+    `{ id, name?, managedBy?: 'external', provider, storageMode?, features?, connection }`.
+  - `BackendConnectionInput` -- the write-side connection, open and
+    secret-bearing (`{ kind: string; [key: string]: unknown }`), carrying
+    provider-specific grant material (e.g. an OAuth `authorizationCode` /
+    `refreshToken`).
+  - `BackendConnectionPublic` -- the sanitized (secret-free) connection returned
+    on every read path: `kind`, a lifecycle `status`
+    (`registered`/`connected`/`expired`/`revoked`/`unreachable`), and optional
+    public metadata (`account`/`scope`/`connectedAt`/`rootFolderName`).
+
+### Changed
+
+- `BackendDescriptor` gains two optional `external`-backend fields: `provider?`
+  (the adapter id that operates the connection) and
+  `connection?: BackendConnectionPublic` (the sanitized connection state). Both
+  absent on the server-managed `default` backend; additive, so no break for
+  existing servers.
+
 ## 0.2.3 - 2026-06-15
 
 ### Added
 
-- `ProblemTypes.INVALID_CURSOR` (`#invalid-cursor`, status `400`) -- a pagination
-  `cursor` query parameter is malformed or can no longer be honored (spec
-  "Pagination"). Like `precondition-failed`, it is only ever observable by a
-  caller already authorized to list the target (an under-authorized caller gets
-  the privacy-merged `not-found`). Wired into `ProblemStatusCodes`.
+- `ProblemTypes.INVALID_CURSOR` (`#invalid-cursor`, status `400`) -- a
+  pagination `cursor` query parameter is malformed or can no longer be honored
+  (spec "Pagination"). Like `precondition-failed`, it is only ever observable by
+  a caller already authorized to list the target (an under-authorized caller
+  gets the privacy-merged `not-found`). Wired into `ProblemStatusCodes`.
 - `CollectionResourcesList.next?: string` -- the optional pagination
   continuation link (spec "Pagination"): a URL the client dereferences for the
   following page, present if and only if more items may follow (its absence is
@@ -21,9 +49,10 @@
 
 - `ProblemTypes.PRECONDITION_FAILED` (`#precondition-failed`, status `412`) -- a
   conditional write's `If-Match` / `If-None-Match` precondition evaluated false
-  (stale `ETag`, or a create-if-absent target that already exists). Header-driven
-  and deliberately distinct from the `409` conflict kinds; advertised by backends
-  carrying the `conditional-writes` feature. Additive, so no type change.
+  (stale `ETag`, or a create-if-absent target that already exists).
+  Header-driven and deliberately distinct from the `409` conflict kinds;
+  advertised by backends carrying the `conditional-writes` feature. Additive, so
+  no type change.
 
 ## 0.2.1 - 2026-06-14
 
@@ -34,9 +63,9 @@
   capability -- an encrypted document is opaque client-encrypted JSON any
   document-capable backend stores faithfully with no server cooperation, and
   whether a Collection is encrypted varies per-Collection on the same backend.
-  The defined tokens are now the genuine server affordances: `conditional-writes`,
-  `blinded-index-query`, `chunked-streams`. Docs-only -- `features` remains
-  `string[]`, so no type change.
+  The defined tokens are now the genuine server affordances:
+  `conditional-writes`, `blinded-index-query`, `chunked-streams`. Docs-only --
+  `features` remains `string[]`, so no type change.
 
 ## 0.2.0 - 2026-06-14
 
@@ -44,10 +73,10 @@
 
 - `BackendDescriptor.features?: string[]` -- an additive, optional capability
   vocabulary a backend advertises so clients can gate behavior on what it
-  actually supports. Currently defined tokens (EDV-over-WAS): `encrypted-documents`,
-  `blinded-index-query`, `conditional-writes`, `chunked-streams`. The vocabulary
-  is open and clients MUST ignore unrecognized tokens; an absent feature means
-  the backend makes no claim to that affordance.
+  actually supports. Currently defined tokens (EDV-over-WAS):
+  `encrypted-documents`, `blinded-index-query`, `conditional-writes`,
+  `chunked-streams`. The vocabulary is open and clients MUST ignore unrecognized
+  tokens; an absent feature means the backend makes no claim to that affordance.
 
 ## 0.1.0 - 2026-06-13
 
