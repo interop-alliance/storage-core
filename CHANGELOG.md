@@ -1,5 +1,11 @@
 # @interop/storage-core Changelog
 
+## 0.3.0 -
+
+### Added
+
+- Add `CollectionEncryption` and `encryption` property to `CollectionDescription`.
+
 ## 0.2.4-0.2.5 - 2026-06-26
 
 ### Added

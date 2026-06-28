@@ -52,6 +52,24 @@ export interface BackendReference {
 }
 
 /**
+ * The client-side encryption marker for a Collection -- a non-secret, declared
+ * property any authorized reader can discover by reading the Collection
+ * Description, to learn that the Collection's Resources are client-encrypted and
+ * which scheme was used, so it selects the matching codec and supplies its own
+ * keys from its wallet/keystore.
+ *
+ * A closed, `scheme`-discriminated union (modeled like {@link BackendReference},
+ * not an open bag): v1 recognizes only EDV-over-WAS (`{ scheme: 'edv' }`).
+ * Future schemes add variants here; the only forward candidates for the `'edv'`
+ * variant are public references -- a recipient key-agreement list (`recipients`)
+ * and a blinded-index HMAC reference (`hmac`) -- added when the client code that
+ * consumes them lands. Key **material** never appears in this marker: encryption
+ * is a per-Collection client concern, never a backend capability, and the server
+ * stores this marker opaquely while keys stay in the client's keystore.
+ */
+export type CollectionEncryption = { scheme: 'edv' }
+
+/**
  * A Collection Description object -- the metadata stored for a Collection.
  */
 export interface CollectionDescription {
@@ -68,6 +86,16 @@ export interface CollectionDescription {
    * `{ id: 'default' }`; persisted thereafter.
    */
   backend?: BackendReference
+  /**
+   * The client-side encryption marker for this Collection (see
+   * {@link CollectionEncryption}). Present iff the Collection's Resources are
+   * client-encrypted; absent means plaintext. Declared by a client at create
+   * time and persisted thereafter (the server stores it opaquely and never sees
+   * key material). Set-once: a server MAY allow declaring it on a Collection
+   * that lacks it, but MUST reject changing or clearing an existing marker
+   * (changing the encryption mode of a populated Collection corrupts its data).
+   */
+  encryption?: CollectionEncryption
   /**
    * URL of the Collection's linkset resource (RFC9264); see
    * `SpaceDescription.linkset`. Attached at response time, not persisted.
