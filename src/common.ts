@@ -79,6 +79,15 @@ export const ProblemTypes = {
   UNSUPPORTED_BACKEND: `${SPEC_URL}#unsupported-backend`,
 
   /**
+   * A Collection update tried to change or clear an existing client-side
+   * `encryption` marker. The marker is set-once: it may be declared on a
+   * Collection that lacks one, but changing its scheme (or clearing it) on a
+   * populated Collection would corrupt the stored, client-encrypted Resources.
+   * Typical status 409.
+   */
+  ENCRYPTION_IMMUTABLE: `${SPEC_URL}#encryption-immutable`,
+
+  /**
    * A conditional write's `If-Match` / `If-None-Match` precondition evaluated
    * false: the Resource's current `ETag` did not match, or a create-if-absent
    * (`If-None-Match: *`) target already exists. Typical status 412.
@@ -196,6 +205,7 @@ export const ProblemStatusCodes: Record<ProblemType, number> = {
   [ProblemTypes.ID_CONFLICT]: 409,
   [ProblemTypes.RESERVED_ID]: 409,
   [ProblemTypes.UNSUPPORTED_BACKEND]: 409,
+  [ProblemTypes.ENCRYPTION_IMMUTABLE]: 409,
   [ProblemTypes.PRECONDITION_FAILED]: 412,
   [ProblemTypes.INVALID_REQUEST_BODY]: 400,
   [ProblemTypes.INVALID_CURSOR]: 400,
