@@ -88,6 +88,27 @@ export const ProblemTypes = {
   ENCRYPTION_IMMUTABLE: `${SPEC_URL}#encryption-immutable`,
 
   /**
+   * A content write into a Collection whose `encryption` marker declares a
+   * recognized scheme did not conform to that scheme's envelope profile: the
+   * request `Content-Type` was not the scheme's registered media type, or the
+   * body was not a structurally valid envelope (see the spec "Encryption Scheme
+   * Registry" section). The server validates structure only; it never decrypts.
+   * Typical status 422. Like the other write-time conflicts, it is only ever
+   * observable by a caller already authorized to write the target (an
+   * under-authorized caller receives the privacy-merged `not-found` instead).
+   */
+  ENCRYPTION_SCHEME_MISMATCH: `${SPEC_URL}#encryption-scheme-mismatch`,
+
+  /**
+   * A Collection create/update supplied an `encryption` marker naming a
+   * `scheme` this server does not recognize and therefore cannot enforce on
+   * write. A server that enforces the fail-closed guarantee rejects such a
+   * marker rather than storing it opaquely (see the spec "Encryption Scheme
+   * Registry" section). Typical status 400.
+   */
+  UNSUPPORTED_ENCRYPTION_SCHEME: `${SPEC_URL}#unsupported-encryption-scheme`,
+
+  /**
    * A conditional write's `If-Match` / `If-None-Match` precondition evaluated
    * false: the Resource's current `ETag` did not match, or a create-if-absent
    * (`If-None-Match: *`) target already exists. Typical status 412.
@@ -206,6 +227,8 @@ export const ProblemStatusCodes: Record<ProblemType, number> = {
   [ProblemTypes.RESERVED_ID]: 409,
   [ProblemTypes.UNSUPPORTED_BACKEND]: 409,
   [ProblemTypes.ENCRYPTION_IMMUTABLE]: 409,
+  [ProblemTypes.ENCRYPTION_SCHEME_MISMATCH]: 422,
+  [ProblemTypes.UNSUPPORTED_ENCRYPTION_SCHEME]: 400,
   [ProblemTypes.PRECONDITION_FAILED]: 412,
   [ProblemTypes.INVALID_REQUEST_BODY]: 400,
   [ProblemTypes.INVALID_CURSOR]: 400,

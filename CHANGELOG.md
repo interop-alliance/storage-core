@@ -1,10 +1,30 @@
 # @interop/storage-core Changelog
 
+## 0.4.0 - TBD
+
+### Added
+
+- Add two problem types for the spec's "Encryption Scheme Registry" fail-closed
+  guarantee, to `ProblemTypes` / `ProblemStatusCodes`:
+  - `ENCRYPTION_SCHEME_MISMATCH` (`#encryption-scheme-mismatch`, 422) -- a
+    content write into an encrypted Collection did not conform to the declared
+    scheme's envelope profile (wrong media type, or not a structurally valid
+    envelope).
+  - `UNSUPPORTED_ENCRYPTION_SCHEME` (`#unsupported-encryption-scheme`, 400) -- a
+    Collection marker named a `scheme` the server does not recognize and cannot
+    enforce.
+
 ## 0.3.0 - 2026-06-27
 
 ### Added
 
-- Add `CollectionEncryption` and `encryption` property to `CollectionDescription`.
+- Add `CollectionEncryption` (a closed, `scheme`-discriminated union; v1
+  `{ scheme: 'edv' }`) and the optional `encryption` property on
+  `CollectionDescription` -- the non-secret, set-once marker declaring a
+  Collection client-side encrypted (spec "Encrypted Collections").
+- Add the `ENCRYPTION_IMMUTABLE` (`#encryption-immutable`, 409) problem type to
+  `ProblemTypes` / `ProblemStatusCodes`, raised when a Collection update tries
+  to change or clear an existing `encryption` marker.
 
 ## 0.2.4-0.2.5 - 2026-06-26
 
