@@ -33,6 +33,15 @@ export interface SpaceDescription {
   name?: string
   /** the `did:key` that owns (controls) the Space */
   controller: IDID
+  /**
+   * DID of the party whose capability invocation created the Space.
+   * Server-managed and read-only: a value supplied in a write body is ignored,
+   * and the recorded value is preserved across later writes. Distinct from
+   * `controller` -- under delegated provisioning the creator need not be the
+   * owner. An OPTIONAL server extension beyond the spec's Space Data Model; an
+   * absent value means "not recorded", not "no creator".
+   */
+  createdBy?: IDID
   /** absolute URL of the Space, when the server populates it */
   url?: string
   /**
@@ -77,6 +86,12 @@ export interface CollectionDescription {
   /** e.g. `['Collection']` */
   type: string[]
   name?: string
+  /**
+   * DID of the party whose capability invocation created the Collection.
+   * Server-managed and read-only, on the same terms as the Space's `createdBy`.
+   * An OPTIONAL server extension beyond the spec's Collection Data Model.
+   */
+  createdBy?: IDID
   /** absolute URL of the Collection, when the server populates it */
   url?: string
   /**
@@ -211,6 +226,11 @@ export interface ResourceMetadataCustom {
  * at the reserved `/meta` segment under a Resource. `contentType` and `size` are
  * the REQUIRED server-managed fields; `createdAt` / `updatedAt` are the OPTIONAL
  * server-managed timestamps, and `custom` holds the user-writable properties.
+ *
+ * `createdBy` is an OPTIONAL server-managed extension beyond the properties the
+ * spec defines: a server MAY record who created a Resource, and a client MUST
+ * treat an absent `createdBy` as "not recorded" rather than as an assertion
+ * that the Resource has no creator.
  */
 export interface ResourceMetadata {
   /** MIME type of the stored representation */
@@ -221,6 +241,13 @@ export interface ResourceMetadata {
   createdAt?: string
   /** RFC3339 date-time the Resource's content or custom metadata last changed */
   updatedAt?: string
+  /**
+   * DID of the party whose capability invocation created the Resource. Set on
+   * the first write and preserved across later writes, so it names the creator
+   * rather than the last writer. Server-managed and read-only: it is not
+   * settable through Update Resource Metadata.
+   */
+  createdBy?: IDID
   /** user-writable properties (omitted when none are set) */
   custom?: ResourceMetadataCustom
 }
