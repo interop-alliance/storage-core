@@ -1,5 +1,19 @@
 # @interop/storage-core Changelog
 
+## 0.3.2 - TBD
+
+### Added
+
+- Add an optional server-managed `createdBy` (a DID) to `ResourceMetadata`,
+  `SpaceDescription`, and `CollectionDescription`, recording the party whose
+  capability invocation created the object. Set on the first write and preserved
+  across later writes, so it names the creator rather than the last writer, and
+  read-only: a value supplied in a write body is ignored. On a Space it is
+  distinct from `controller`, which under delegated provisioning need not be the
+  creator. Optional and additive: an absent `createdBy` means "not recorded",
+  not "no creator". Extends the properties the spec's "Resource Metadata Data
+  Model", "Space Data Model", and "Collection Data Model" define.
+
 ## 0.3.1 - 2026-07-01
 
 ### Added
