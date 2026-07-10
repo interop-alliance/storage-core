@@ -38,8 +38,8 @@ export interface SpaceDescription {
    * Server-managed and read-only: a value supplied in a write body is ignored,
    * and the recorded value is preserved across later writes. Distinct from
    * `controller` -- under delegated provisioning the creator need not be the
-   * owner. An OPTIONAL server extension beyond the spec's Space Data Model; an
-   * absent value means "not recorded", not "no creator".
+   * owner. OPTIONAL (spec "Space Data Model"): an absent value means "not
+   * recorded", not "no creator".
    */
   createdBy?: IDID
   /** absolute URL of the Space, when the server populates it */
@@ -89,7 +89,7 @@ export interface CollectionDescription {
   /**
    * DID of the party whose capability invocation created the Collection.
    * Server-managed and read-only, on the same terms as the Space's `createdBy`.
-   * An OPTIONAL server extension beyond the spec's Collection Data Model.
+   * OPTIONAL (spec "Collection Data Model").
    */
   createdBy?: IDID
   /** absolute URL of the Collection, when the server populates it */
@@ -293,10 +293,9 @@ export interface ResourceMetadataCustom {
  * the REQUIRED server-managed fields; `createdAt` / `updatedAt` are the OPTIONAL
  * server-managed timestamps, and `custom` holds the user-writable properties.
  *
- * `createdBy` is an OPTIONAL server-managed extension beyond the properties the
- * spec defines: a server MAY record who created a Resource, and a client MUST
- * treat an absent `createdBy` as "not recorded" rather than as an assertion
- * that the Resource has no creator.
+ * `createdBy` is an OPTIONAL server-managed property: a server MAY record who
+ * created a Resource, and a client MUST treat an absent `createdBy` as "not
+ * recorded" rather than as an assertion that the Resource has no creator.
  */
 export interface ResourceMetadata {
   /** MIME type of the stored representation */
