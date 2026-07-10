@@ -180,6 +180,72 @@ export interface ResourceSummary {
 }
 
 /**
+ * The keyset position of a `changes` feed page (spec "Query Profile Registry",
+ * the `changes` profile): the `(updatedAt, id)` pair of the last document
+ * returned. Passed back to resume strictly after it. Opaque to a client --
+ * a position token, not a timestamp to do arithmetic on.
+ */
+export interface ChangesCheckpoint {
+  id: string
+  updatedAt: string
+}
+
+/**
+ * One document of the `changes` query profile's replication feed. A tombstone
+ * (a soft-deleted Resource) has `_deleted: true` and no `data`; its
+ * server-managed properties still travel, so a delete replicates with its
+ * attribution intact. Binary (non-JSON) Resources are excluded from the feed.
+ *
+ * `data` and `custom` are exactly what the server stores. On an encrypted
+ * Collection both are the declared scheme's opaque envelope rather than
+ * plaintext -- for the v1 `edv` scheme, an EDV encrypted document
+ * (`{ id, sequence, jwe, indexed? }`, `IEncryptedDocument` in
+ * `@interop/data-integrity-core`), whose JWE is nested at `.jwe`. They are
+ * deliberately NOT typed as that envelope: the `scheme` registry is open, so a
+ * future scheme's envelope need not be an EDV document, and the server stores
+ * whichever it is verbatim without decrypting. `data` is `unknown` also because
+ * a plaintext Resource body may be any JSON value, a bare primitive included.
+ *
+ * Note this is the WIRE shape (`id` / `_deleted`), which a server's internal
+ * storage-port shape need not match.
+ */
+export interface ChangeDocument {
+  /** the Resource id */
+  id: string
+  /** `true` on a tombstone */
+  _deleted: boolean
+  /** RFC3339 date-time of the change; half of the checkpoint keyset */
+  updatedAt: string
+  /** the Resource's monotonic content version (its `ETag` validator) */
+  version: number
+  /** the independent `/meta` version, once metadata has been written */
+  metaVersion?: number
+  /**
+   * DID of the Resource's creator, when one was recorded. Rides the feed so a
+   * replica learns provenance without fetching `/meta` per Resource; a
+   * tombstone keeps it. See {@link ResourceMetadata.createdBy}.
+   */
+  createdBy?: IDID
+  /** the stored JSON body, or its encryption envelope; absent on a tombstone */
+  data?: unknown
+  /**
+   * the user-writable metadata (`{ name, tags }`) on a plaintext Collection,
+   * or its encryption envelope on an encrypted one
+   */
+  custom?: ResourceMetadataCustom | Record<string, unknown>
+}
+
+/**
+ * One page of the `changes` feed. `checkpoint` is the position to resume after,
+ * or `null` on an empty page (nothing changed). A page shorter than the
+ * requested `limit` means the caller has caught up.
+ */
+export interface ChangesPage {
+  documents: ChangeDocument[]
+  checkpoint: ChangesCheckpoint | null
+}
+
+/**
  * Return shape of the List Collection operation (the Resources within one
  * Collection). Renamed from the former `CollectionListing` (server) /
  * `ResourceListing` (client) to disambiguate it from {@link CollectionsList}.

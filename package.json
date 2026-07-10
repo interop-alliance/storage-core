@@ -1,7 +1,7 @@
 {
   "name": "@interop/storage-core",
   "description": "Shared WAS/EDV wire-model types and error vocabulary for the Wallet Attached Storage server and client.",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "type": "module",
   "scripts": {
     "build": "pnpm run clear && tsc",

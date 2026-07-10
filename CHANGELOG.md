@@ -1,5 +1,18 @@
 # @interop/storage-core Changelog
 
+## 0.3.3 - TBD
+
+### Added
+
+- Add the wire shapes of the `changes` query profile (spec "Query Profile
+  Registry"), shared by the server that serves the feed and the client that
+  replicates from it: `ChangeDocument` (`id`, `_deleted`, `updatedAt`,
+  `version`, optional `metaVersion` / `createdBy` / `data` / `custom`),
+  `ChangesPage` (`documents` + `checkpoint`), and `ChangesCheckpoint` (the
+  `(updatedAt, id)` keyset position). `data` is `unknown` because a Resource
+  body may be any JSON value. These are the wire shapes; a server's internal
+  storage-port shape need not match them.
+
 ## 0.3.2 - 2026-07-09
 
 ### Added
