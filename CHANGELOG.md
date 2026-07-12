@@ -1,5 +1,27 @@
 # @interop/storage-core Changelog
 
+## 0.3.4 - TBD
+
+### Added
+
+- Widen `CollectionEncryption` (the `'edv'` variant) with the key-epoch public
+  references for multi-recipient encrypted Collections: `epochs?` (each epoch an
+  `{ id, recipients }`, wrapping the epoch's collection key once per recipient)
+  and `currentEpoch?` (the epoch new writes encrypt under; MUST name an entry in
+  `epochs`). Recipient entries (`CollectionEncryptionRecipient`) reuse the JWE
+  general-serialization `recipients` entry shape verbatim (`header` with
+  `kid`/`alg`/key-agreement members, plus `encrypted_key`) -- one wire
+  vocabulary for "a key wrapped to a recipient". Nothing secret appears in the
+  marker: public keys and wrapped-key ciphertext only.
+- Add an optional client-declared `epoch?: string` to `ResourceMetadata` -- the
+  key-epoch id the Resource's content was encrypted under, a sibling of
+  `custom` (on an encrypted Collection `custom` is the opaque envelope and is
+  full-replaced on every metadata write, so the epoch cannot live inside it).
+  The server stores the value opaquely; it never computes or verifies it. Also
+  carried on `ChangeDocument` and `ResourceSummary`, so a replicating reader
+  (or one walking a listing) can pick the right epoch key without a `/meta`
+  fetch per Resource.
+
 ## 0.3.3 - 2026-07-09
 
 ### Added

@@ -61,22 +61,68 @@ export interface BackendReference {
 }
 
 /**
+ * One recipient's wrapped copy of an epoch's collection key, in a
+ * {@link CollectionEncryptionEpoch}. Deliberately the JWE general-serialization
+ * `recipients` entry shape verbatim (RFC7516: a `header` -- `kid` naming the
+ * recipient's key-agreement key, `alg` such as `ECDH-ES+A256KW`, and the
+ * key-agreement members like `epk` / `apu` / `apv` -- plus the wrapped key as
+ * `encrypted_key`): the same shape an EDV envelope's `recipients` array carries,
+ * so there is one wire vocabulary for "a key wrapped to a recipient". Nothing
+ * secret appears here -- `kid`/`epk` are public keys and `encrypted_key` is
+ * ciphertext only the named recipient can unwrap.
+ */
+export interface CollectionEncryptionRecipient {
+  header: { kid: string; alg: string; [member: string]: unknown }
+  encrypted_key: string
+}
+
+/**
+ * One key epoch of an encrypted Collection: an opaque epoch `id` plus the
+ * epoch's collection key wrapped once per recipient. Resources are encrypted
+ * under exactly one epoch and carry its id in {@link ResourceMetadata.epoch};
+ * a reader resolves its own `kid` among `recipients` and unwraps that epoch's
+ * key. Old epochs stay listed so Resources stored under them remain readable
+ * by the readers who hold them; removing a reader means minting a NEW epoch
+ * without it (never editing an existing one), so epochs are append-only.
+ */
+export interface CollectionEncryptionEpoch {
+  id: string
+  recipients: CollectionEncryptionRecipient[]
+}
+
+/**
  * The client-side encryption marker for a Collection -- a non-secret, declared
  * property any authorized reader can discover by reading the Collection
  * Description, to learn that the Collection's Resources are client-encrypted and
  * which scheme was used, so it selects the matching codec and supplies its own
  * keys from its wallet/keystore.
  *
- * A closed, `scheme`-discriminated union (modeled like {@link BackendReference},
- * not an open bag): v1 recognizes only EDV-over-WAS (`{ scheme: 'edv' }`).
- * Future schemes add variants here; the only forward candidates for the `'edv'`
- * variant are public references -- a recipient key-agreement list (`recipients`)
- * and a blinded-index HMAC reference (`hmac`) -- added when the client code that
- * consumes them lands. Key **material** never appears in this marker: encryption
- * is a per-Collection client concern, never a backend capability, and the server
- * stores this marker opaquely while keys stay in the client's keystore.
+ * A `scheme`-discriminated union (modeled like {@link BackendReference}, not an
+ * open bag): v1 recognizes only EDV-over-WAS (`scheme: 'edv'`). Future schemes
+ * add variants here. The `'edv'` variant's other members are **public
+ * references** only:
+ *
+ * - `epochs` / `currentEpoch` -- the key-epoch list for a multi-recipient
+ *   Collection (see {@link CollectionEncryptionEpoch}): each epoch wraps a
+ *   collection key to every recipient, writes use `currentEpoch`, and removing
+ *   a reader appends a fresh epoch that excludes it. `currentEpoch` MUST name
+ *   an entry in `epochs`; servers additionally enforce that `epochs` is
+ *   append-only and `currentEpoch` never moves back to an older epoch (a
+ *   dropped epoch would strand every Resource stamped with it).
+ * - `hmac` -- a blinded-index HMAC key reference, a forward candidate added
+ *   when the client code that consumes it lands. Note the blinded-index key
+ *   deliberately does NOT rotate with the epoch: rotating it would invalidate
+ *   every blinded index in the Collection on every reader removal.
+ *
+ * Key **material** never appears in this marker: encryption is a per-Collection
+ * client concern, never a backend capability, and the server stores this marker
+ * opaquely while keys stay in the client's keystore.
  */
-export type CollectionEncryption = { scheme: 'edv' }
+export type CollectionEncryption = {
+  scheme: 'edv'
+  currentEpoch?: string
+  epochs?: CollectionEncryptionEpoch[]
+}
 
 /**
  * A Collection Description object -- the metadata stored for a Collection.
@@ -177,6 +223,12 @@ export interface ResourceSummary {
   contentType: string
   /** human-readable name from the Resource's `custom.name`, when set */
   name?: string
+  /**
+   * The key-epoch id the Resource was encrypted under, when the writer
+   * declared one (see {@link ResourceMetadata.epoch}). Surfaced in listings so
+   * a reader can pick the right epoch key without a `/meta` fetch per item.
+   */
+  epoch?: string
 }
 
 /**
@@ -226,6 +278,15 @@ export interface ChangeDocument {
    * tombstone keeps it. See {@link ResourceMetadata.createdBy}.
    */
   createdBy?: IDID
+  /**
+   * The key-epoch id the Resource was encrypted under, when the writer
+   * declared one (see {@link ResourceMetadata.epoch}). Rides the feed so a
+   * replicating reader can pick the right epoch key without fetching `/meta`
+   * per Resource; a puller encountering an epoch id it does not know must
+   * re-read the Collection Description (a rekey changes the description only
+   * and emits no feed entry).
+   */
+  epoch?: string
   /** the stored JSON body, or its encryption envelope; absent on a tombstone */
   data?: unknown
   /**
@@ -313,6 +374,19 @@ export interface ResourceMetadata {
    * settable through Update Resource Metadata.
    */
   createdBy?: IDID
+  /**
+   * The key-epoch id the Resource's content was encrypted under (an id from
+   * the Collection's `encryption.epochs`), on an encrypted multi-recipient
+   * Collection. Client-declared: the writer stamps the epoch it encrypted
+   * with, and the server stores the value opaquely -- it cannot compute or
+   * verify it, since it never holds a key. A reader resolves this id (falling
+   * back to the marker's `currentEpoch` when absent) to pick which epoch key
+   * to unwrap BEFORE attempting decryption. Deliberately a sibling of
+   * `custom`, not inside it: on an encrypted Collection `custom` IS the opaque
+   * envelope and is full-replaced by every metadata write, so a value inside
+   * it would be lost.
+   */
+  epoch?: string
   /** user-writable properties (omitted when none are set) */
   custom?: ResourceMetadataCustom
 }
