@@ -1,5 +1,11 @@
 # @interop/storage-core Changelog
 
+## 0.3.5 - 2026-07
+
+### Changed
+
+- Update to `@interop/data-integrity-core@8.3.0`.
+
 ## 0.3.4 - 2026-07-11
 
 ### Added
@@ -14,13 +20,13 @@
   vocabulary for "a key wrapped to a recipient". Nothing secret appears in the
   marker: public keys and wrapped-key ciphertext only.
 - Add an optional client-declared `epoch?: string` to `ResourceMetadata` -- the
-  key-epoch id the Resource's content was encrypted under, a sibling of
-  `custom` (on an encrypted Collection `custom` is the opaque envelope and is
+  key-epoch id the Resource's content was encrypted under, a sibling of `custom`
+  (on an encrypted Collection `custom` is the opaque envelope and is
   full-replaced on every metadata write, so the epoch cannot live inside it).
   The server stores the value opaquely; it never computes or verifies it. Also
-  carried on `ChangeDocument` and `ResourceSummary`, so a replicating reader
-  (or one walking a listing) can pick the right epoch key without a `/meta`
-  fetch per Resource.
+  carried on `ChangeDocument` and `ResourceSummary`, so a replicating reader (or
+  one walking a listing) can pick the right epoch key without a `/meta` fetch
+  per Resource.
 
 ## 0.3.3 - 2026-07-09
 
