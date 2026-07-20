@@ -1,5 +1,16 @@
 # @interop/storage-core Changelog
 
+## Unreleased - TBD
+
+### Changed
+
+- Add the optional `next` pagination continuation link to `CollectionsList` and
+  `SpaceListing`, mirroring `CollectionResourcesList.next`, so the List
+  Collections and List Spaces operations can return one cursor-paginated page at
+  a time (spec "Pagination" appendix). `SpaceListing.totalItems` becomes
+  optional: a paginating server MAY omit the full count, which for List Spaces
+  would require verifying every candidate controller.
+
 ## 0.3.6 - 2026-07-19
 
 ### Added
