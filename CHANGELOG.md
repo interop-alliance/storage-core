@@ -1,5 +1,15 @@
 # @interop/storage-core Changelog
 
+## 0.3.6 - TBD
+
+### Added
+
+- Add the optional `indexes` property to `CollectionDescription` (the `equality`
+  query profile's declaration surface) and the `CollectionIndexDeclaration`
+  entry shape (`{ name, source?, unique? }`; a bare string entry is shorthand
+  for a content-sourced attribute). `indexes` is mutually exclusive with the
+  `encryption` marker and, unlike it, updatable.
+
 ## 0.3.5 - 2026-07-17
 
 ### Changed

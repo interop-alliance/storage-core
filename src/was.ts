@@ -125,6 +125,31 @@ export type CollectionEncryption = {
 }
 
 /**
+ * One entry of a Collection's `indexes` declaration (spec "Collection Data
+ * Model"; the `equality` query profile). Names an attribute the server
+ * extracts and indexes from stored Resources:
+ *
+ * - `source: 'content'` (the default) extracts from the top-level members of a
+ *   JSON Resource's stored content, on every content write.
+ * - `source: 'custom'` extracts from the top-level members of a Resource's
+ *   `custom` metadata object -- the route by which blob Resources become
+ *   queryable (e.g. user-defined tags on images).
+ *
+ * `unique: true` claims per-Collection uniqueness for the attribute's
+ * `(name, value)` pairs: a server rejects a write whose extracted value is
+ * already claimed by a different Resource in the same Collection
+ * (`id-conflict`, 409).
+ *
+ * A bare string entry in `indexes` is shorthand for
+ * `{ name: '...', source: 'content' }`.
+ */
+export interface CollectionIndexDeclaration {
+  name: string
+  source?: 'content' | 'custom'
+  unique?: boolean
+}
+
+/**
  * A Collection Description object -- the metadata stored for a Collection.
  */
 export interface CollectionDescription {
@@ -157,6 +182,18 @@ export interface CollectionDescription {
    * (changing the encryption mode of a populated Collection corrupts its data).
    */
   encryption?: CollectionEncryption
+  /**
+   * The attributes the server extracts and indexes for the `equality` query
+   * profile (see {@link CollectionIndexDeclaration}); a bare string entry is
+   * shorthand for `{ name, source: 'content' }`. Declared names MUST be unique
+   * across the array regardless of source. Declaring a content-sourced entry
+   * is the Collection's opt-in to the server parsing its JSON Resource content
+   * on write. MUST NOT be combined with an `encryption` marker (the server
+   * cannot extract attributes from an opaque envelope -- encrypted Collections
+   * use the `blinded-index` profile instead). Unlike `encryption`, `indexes`
+   * is updatable: entries may be added or removed on an existing Collection.
+   */
+  indexes?: Array<string | CollectionIndexDeclaration>
   /**
    * URL of the Collection's linkset resource (RFC9264); see
    * `SpaceDescription.linkset`. Attached at response time, not persisted.
