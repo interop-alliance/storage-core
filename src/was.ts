@@ -229,8 +229,24 @@ export interface SpaceSummary {
  */
 export interface SpaceListing {
   url: string
-  totalItems: number
+  /**
+   * The total number of Spaces in the listing. A paginating server MAY omit it
+   * (spec "Pagination" appendix): computing the true total means verifying every
+   * candidate controller, so it is present only on a complete, unpaginated
+   * listing. A client MUST NOT infer page count or end-of-list from it -- only
+   * `next` is authoritative.
+   */
+  totalItems?: number
   items: SpaceSummary[]
+  /**
+   * Pagination continuation link (spec "Pagination"). When present, a URL the
+   * client dereferences (with the same authorization) to retrieve the following
+   * page; the server bakes the opaque `cursor` (and any `limit`) into it.
+   * Present if and only if more items may follow -- its absence is the
+   * authoritative end-of-list signal (do not infer page count from
+   * `totalItems`). Omitted by a server that returns every item in one response.
+   */
+  next?: string
 }
 
 /** One entry in a {@link CollectionsList} (a Collection within a Space). */
@@ -250,6 +266,15 @@ export interface CollectionsList {
   url: string
   totalItems: number
   items: CollectionSummary[]
+  /**
+   * Pagination continuation link (spec "Pagination"). When present, a URL the
+   * client dereferences (with the same authorization) to retrieve the following
+   * page; the server bakes the opaque `cursor` (and any `limit`) into it.
+   * Present if and only if more items may follow -- its absence is the
+   * authoritative end-of-list signal (do not infer page count from
+   * `totalItems`). Omitted by a server that returns every item in one response.
+   */
+  next?: string
 }
 
 /** One entry in a {@link CollectionResourcesList} (a Resource within a Collection). */
