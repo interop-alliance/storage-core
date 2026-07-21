@@ -1,5 +1,16 @@
 # @interop/storage-core Changelog
 
+## TBD
+
+### Added
+
+- Add the optional `version` member to `CollectionEncryption` (the encryption
+  scheme's version; servers enforce it never decreases and is never removed) and
+  the optional `epochsMac` member with its `CollectionEncryptionEpochsMac` shape
+  (`{ v, alg, mac }`) -- a client-computed MAC over the epoch configuration,
+  keyed from the current epoch's secret, letting writers detect a server-side
+  rollback of `currentEpoch` before encrypting.
+
 ## 0.3.7 - 2026-07-20
 
 ### Changed

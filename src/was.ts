@@ -109,6 +109,16 @@ export interface CollectionEncryptionEpoch {
  *   an entry in `epochs`; servers additionally enforce that `epochs` is
  *   append-only and `currentEpoch` never moves back to an older epoch (a
  *   dropped epoch would strand every Resource stamped with it).
+ * - `version` -- the scheme's version (a positive integer; `1` when absent,
+ *   the pre-versioning vintage). Writers also bind the same version inside
+ *   each envelope's AEAD-authenticated protected header, so a downgrade of
+ *   either copy is client-detectable; servers enforce that a declared
+ *   `version` never decreases and is never removed.
+ * - `epochsMac` -- a client-computed MAC over the epoch configuration
+ *   (`scheme` / `version` / `currentEpoch` / the ordered epoch id list),
+ *   keyed from the current epoch's secret, which the server does not hold.
+ *   Writers verify it before encrypting, so a server-side rollback of
+ *   `currentEpoch` (or a fabricated epoch list) fails to authenticate.
  * - `hmac` -- a blinded-index HMAC key reference, a forward candidate added
  *   when the client code that consumes it lands. Note the blinded-index key
  *   deliberately does NOT rotate with the epoch: rotating it would invalidate
@@ -116,12 +126,30 @@ export interface CollectionEncryptionEpoch {
  *
  * Key **material** never appears in this marker: encryption is a per-Collection
  * client concern, never a backend capability, and the server stores this marker
- * opaquely while keys stay in the client's keystore.
+ * opaquely while keys stay in the client's keystore (an epoch MAC is
+ * ciphertext-class data: only holders of the epoch secret can recompute it).
  */
 export type CollectionEncryption = {
   scheme: 'edv'
+  version?: number
   currentEpoch?: string
   epochs?: CollectionEncryptionEpoch[]
+  epochsMac?: CollectionEncryptionEpochsMac
+}
+
+/**
+ * The authenticated-epoch-configuration member of a
+ * {@link CollectionEncryption} marker: an HMAC over the marker's epoch
+ * configuration, keyed via HKDF from the current epoch's secret. `v` is the
+ * MAC construction's own version (currently `1`), `alg` the MAC algorithm
+ * (`HS256`), and `mac` the tag, base64url without padding. Verification is a
+ * client concern; the server stores and returns this opaquely like the rest
+ * of the marker.
+ */
+export interface CollectionEncryptionEpochsMac {
+  v: number
+  alg: string
+  mac: string
 }
 
 /**
