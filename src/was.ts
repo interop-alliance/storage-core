@@ -283,6 +283,16 @@ export interface CollectionSummary {
   /** relative URL, `/space/:spaceId/:collectionId` */
   url: string
   name: string
+  /**
+   * Whether a `PublicCanRead` access-control policy (see
+   * {@link PolicyDocument}) is attached to the Collection. Surfaced in
+   * listings so a client rendering a Collection browser need not issue one
+   * policy probe per listed Collection (an N+1). A server that computes it
+   * includes it on every item (`false` is expressed, not omitted); absent
+   * means the server predates the field and the client falls back to probing
+   * each Collection's policy itself.
+   */
+  public?: boolean
 }
 
 /**
