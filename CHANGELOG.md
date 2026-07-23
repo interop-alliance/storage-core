@@ -1,5 +1,15 @@
 # @interop/storage-core Changelog
 
+## 0.3.9 - TBD
+
+### Added
+
+- Add the optional `public` member to `CollectionSummary`: whether a
+  `PublicCanRead` policy is attached to the Collection, surfaced inline in the
+  List Collections result so a client need not issue one policy probe per listed
+  Collection. A server that computes it includes it on every item; absent means
+  the server predates the field.
+
 ## 0.3.8 - 2026-07-21
 
 ### Added
