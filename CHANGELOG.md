@@ -1,5 +1,13 @@
 # @interop/storage-core Changelog
 
+## 0.3.10 - TBD
+
+### Changed
+
+- Documentation only: the `encryption` member of a Collection Description is now
+  called the "encryption descriptor" (previously "marker"), following the spec
+  wording. No identifiers, types, or wire shapes change.
+
 ## 0.3.9 - 2026-07-23
 
 ### Added

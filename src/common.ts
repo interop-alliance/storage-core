@@ -80,15 +80,16 @@ export const ProblemTypes = {
 
   /**
    * A Collection update tried to change or clear an existing client-side
-   * `encryption` marker. The marker is set-once: it may be declared on a
-   * Collection that lacks one, but changing its scheme (or clearing it) on a
-   * populated Collection would corrupt the stored, client-encrypted Resources.
+   * `encryption` descriptor. The descriptor is set-once: it may be declared
+   * on a Collection that lacks one, but changing its scheme (or clearing it)
+   * on a populated Collection would corrupt the stored, client-encrypted
+   * Resources.
    * Typical status 409.
    */
   ENCRYPTION_IMMUTABLE: `${SPEC_URL}#encryption-immutable`,
 
   /**
-   * A content write into a Collection whose `encryption` marker declares a
+   * A content write into a Collection whose `encryption` descriptor declares a
    * recognized scheme did not conform to that scheme's envelope profile: the
    * request `Content-Type` was not the scheme's registered media type, or the
    * body was not a structurally valid envelope (see the spec "Encryption Scheme
@@ -100,10 +101,10 @@ export const ProblemTypes = {
   ENCRYPTION_SCHEME_MISMATCH: `${SPEC_URL}#encryption-scheme-mismatch`,
 
   /**
-   * A Collection create/update supplied an `encryption` marker naming a
+   * A Collection create/update supplied an `encryption` descriptor naming a
    * `scheme` this server does not recognize and therefore cannot enforce on
    * write. A server that enforces the fail-closed guarantee rejects such a
-   * marker rather than storing it opaquely (see the spec "Encryption Scheme
+   * descriptor rather than storing it opaquely (see the spec "Encryption Scheme
    * Registry" section). Typical status 400.
    */
   UNSUPPORTED_ENCRYPTION_SCHEME: `${SPEC_URL}#unsupported-encryption-scheme`,

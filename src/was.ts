@@ -91,11 +91,11 @@ export interface CollectionEncryptionEpoch {
 }
 
 /**
- * The client-side encryption marker for a Collection -- a non-secret, declared
- * property any authorized reader can discover by reading the Collection
- * Description, to learn that the Collection's Resources are client-encrypted and
- * which scheme was used, so it selects the matching codec and supplies its own
- * keys from its wallet/keystore.
+ * The client-side encryption descriptor for a Collection -- a non-secret,
+ * declared property any authorized reader can discover by reading the
+ * Collection Description, to learn that the Collection's Resources are
+ * client-encrypted and which scheme was used, so it selects the matching codec
+ * and supplies its own keys from its wallet/keystore.
  *
  * A `scheme`-discriminated union (modeled like {@link BackendReference}, not an
  * open bag): v1 recognizes only EDV-over-WAS (`scheme: 'edv'`). Future schemes
@@ -124,10 +124,11 @@ export interface CollectionEncryptionEpoch {
  *   deliberately does NOT rotate with the epoch: rotating it would invalidate
  *   every blinded index in the Collection on every reader removal.
  *
- * Key **material** never appears in this marker: encryption is a per-Collection
- * client concern, never a backend capability, and the server stores this marker
- * opaquely while keys stay in the client's keystore (an epoch MAC is
- * ciphertext-class data: only holders of the epoch secret can recompute it).
+ * Key **material** never appears in this descriptor: encryption is a
+ * per-Collection client concern, never a backend capability, and the server
+ * stores this descriptor opaquely while keys stay in the client's keystore (an
+ * epoch MAC is ciphertext-class data: only holders of the epoch secret can
+ * recompute it).
  */
 export type CollectionEncryption = {
   scheme: 'edv'
@@ -139,12 +140,12 @@ export type CollectionEncryption = {
 
 /**
  * The authenticated-epoch-configuration member of a
- * {@link CollectionEncryption} marker: an HMAC over the marker's epoch
+ * {@link CollectionEncryption} descriptor: an HMAC over the descriptor's epoch
  * configuration, keyed via HKDF from the current epoch's secret. `v` is the
  * MAC construction's own version (currently `1`), `alg` the MAC algorithm
  * (`HS256`), and `mac` the tag, base64url without padding. Verification is a
  * client concern; the server stores and returns this opaquely like the rest
- * of the marker.
+ * of the descriptor.
  */
 export interface CollectionEncryptionEpochsMac {
   v: number
@@ -201,12 +202,12 @@ export interface CollectionDescription {
    */
   backend?: BackendReference
   /**
-   * The client-side encryption marker for this Collection (see
+   * The client-side encryption descriptor for this Collection (see
    * {@link CollectionEncryption}). Present iff the Collection's Resources are
    * client-encrypted; absent means plaintext. Declared by a client at create
    * time and persisted thereafter (the server stores it opaquely and never sees
    * key material). Set-once: a server MAY allow declaring it on a Collection
-   * that lacks it, but MUST reject changing or clearing an existing marker
+   * that lacks it, but MUST reject changing or clearing an existing descriptor
    * (changing the encryption mode of a populated Collection corrupts its data).
    */
   encryption?: CollectionEncryption
@@ -216,7 +217,7 @@ export interface CollectionDescription {
    * shorthand for `{ name, source: 'content' }`. Declared names MUST be unique
    * across the array regardless of source. Declaring a content-sourced entry
    * is the Collection's opt-in to the server parsing its JSON Resource content
-   * on write. MUST NOT be combined with an `encryption` marker (the server
+   * on write. MUST NOT be combined with an `encryption` descriptor (the server
    * cannot extract attributes from an opaque envelope -- encrypted Collections
    * use the `blinded-index` profile instead). Unlike `encryption`, `indexes`
    * is updatable: entries may be added or removed on an existing Collection.
@@ -480,8 +481,8 @@ export interface ResourceMetadata {
    * Collection. Client-declared: the writer stamps the epoch it encrypted
    * with, and the server stores the value opaquely -- it cannot compute or
    * verify it, since it never holds a key. A reader resolves this id (falling
-   * back to the marker's `currentEpoch` when absent) to pick which epoch key
-   * to unwrap BEFORE attempting decryption. Deliberately a sibling of
+   * back to the descriptor's `currentEpoch` when absent) to pick which epoch
+   * key to unwrap BEFORE attempting decryption. Deliberately a sibling of
    * `custom`, not inside it: on an encrypted Collection `custom` IS the opaque
    * envelope and is full-replaced by every metadata write, so a value inside
    * it would be lost.
