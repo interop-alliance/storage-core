@@ -1,5 +1,18 @@
 # @interop/storage-core Changelog
 
+## 0.3.13 - TBD
+
+### Added
+
+- `CollectionEncryptionEpochsSig` and the optional `epochsSig` member of
+  `CollectionEncryption`: a client-computed detached signature over the same
+  epoch configuration the `epochsMac` covers, by a signing key the reader
+  resolves against a root of trust outside the descriptor (e.g. a DID document
+  verification method). Complements the MAC, which cannot authenticate a
+  configuration to a reader meeting an epoch for the first time (its key is
+  delivered by the descriptor itself). Stored and returned opaquely by servers
+  like the rest of the descriptor.
+
 ## 0.3.11-0.3.12 - 2026-08-01
 
 ### Changed

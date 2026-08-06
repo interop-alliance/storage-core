@@ -119,6 +119,12 @@ export interface CollectionEncryptionEpoch {
  *   keyed from the current epoch's secret, which the server does not hold.
  *   Writers verify it before encrypting, so a server-side rollback of
  *   `currentEpoch` (or a fabricated epoch list) fails to authenticate.
+ * - `epochsSig` -- a client-computed detached signature over the same epoch
+ *   configuration the `epochsMac` covers, by a signing key the reader can
+ *   trace to a root of trust outside the descriptor (e.g. a DID document's
+ *   verification method). Complements the MAC: the MAC is keyed from a secret
+ *   delivered BY the descriptor, so on a reader's first contact with an epoch
+ *   it cannot catch a server-minted configuration; the signature can.
  * - `hmac` -- a blinded-index HMAC key reference, a forward candidate added
  *   when the client code that consumes it lands. Note the blinded-index key
  *   deliberately does NOT rotate with the epoch: rotating it would invalidate
@@ -136,6 +142,7 @@ export type CollectionEncryption = {
   currentEpoch?: string
   epochs?: CollectionEncryptionEpoch[]
   epochsMac?: CollectionEncryptionEpochsMac
+  epochsSig?: CollectionEncryptionEpochsSig
 }
 
 /**
@@ -151,6 +158,23 @@ export interface CollectionEncryptionEpochsMac {
   v: number
   alg: string
   mac: string
+}
+
+/**
+ * The signed-epoch-configuration member of a {@link CollectionEncryption}
+ * descriptor: a detached signature over the descriptor's epoch configuration
+ * by the writing client's signing key. `v` is the signature construction's own
+ * version (currently `1`), `alg` the signature algorithm (`EdDSA`), `kid` the
+ * signer's public-key identifier (resolved by the reader against a root of
+ * trust outside the descriptor), and `sig` the signature, base64url without
+ * padding. Verification is a client concern; the server stores and returns
+ * this opaquely like the rest of the descriptor.
+ */
+export interface CollectionEncryptionEpochsSig {
+  v: number
+  alg: string
+  kid: string
+  sig: string
 }
 
 /**
