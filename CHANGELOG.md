@@ -1,5 +1,15 @@
 # @interop/storage-core Changelog
 
+## 0.3.14 - TBD
+
+### Changed
+
+- `CollectionEncryption`: the `version` doc comment now matches the WAS spec's
+  settled shape -- a positive-integer registry key (absent = `1`), set-once,
+  version-monotonic (idempotent re-declaration allowed, decrease/removal/clear
+  rejected, raise allowed when the server recognizes the new pair). Type shape
+  unchanged.
+
 ## 0.3.13 - 2026-08-05
 
 ### Added

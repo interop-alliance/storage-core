@@ -109,11 +109,17 @@ export interface CollectionEncryptionEpoch {
  *   an entry in `epochs`; servers additionally enforce that `epochs` is
  *   append-only and `currentEpoch` never moves back to an older epoch (a
  *   dropped epoch would strand every Resource stamped with it).
- * - `version` -- the scheme's version (a positive integer; `1` when absent,
- *   the pre-versioning vintage). Writers also bind the same version inside
- *   each envelope's AEAD-authenticated protected header, so a downgrade of
- *   either copy is client-detectable; servers enforce that a declared
- *   `version` never decreases and is never removed.
+ * - `version` -- the version of the scheme's wire format, per the spec's
+ *   Encryption Scheme Registry: a positive integer registry key with a total
+ *   order (not a semantic version), starting at `1` per scheme; `1` when
+ *   absent. The descriptor is set-once, version-monotonic: re-declaring the
+ *   standing values (including an explicit `1` on a descriptor that had
+ *   omitted it) is an idempotent no-op, while a `scheme` change, a `version`
+ *   decrease or removal, or a clear is rejected (`encryption-immutable`);
+ *   raising the version is allowed when the server recognizes the new pair.
+ *   Writers also bind the same version inside each envelope's
+ *   AEAD-authenticated protected header, so a downgrade of either copy is
+ *   client-detectable.
  * - `epochsMac` -- a client-computed MAC over the epoch configuration
  *   (`scheme` / `version` / `currentEpoch` / the ordered epoch id list),
  *   keyed from the current epoch's secret, which the server does not hold.
