@@ -1,6 +1,22 @@
 # @interop/storage-core Changelog
 
-## 0.3.14 - TBD
+## 0.4.0 - TBD
+
+### Added
+
+- The resource-log wire types (`src/resourceLog.ts`, re-exported from the root),
+  per the App Connect spec's Resource Log Profile: `ResourceLogEntry` (the
+  five-member entry), `ResourceLogGenesisParameters` (`method`, `scid`, optional
+  `previousLog`), `ResourceLogTerminalParameters` (`nextLog`),
+  `ResourceLogParameters`, `ResourceLogEntryProof` (the fixed `eddsa-jcs-2022` /
+  `assertionMethod` Data Integrity proof shape carrying the entry anchor), and
+  the byte-significant format identifier constant `WAS_RESOURCE_LOG_METHOD`
+  (`was-resource-log:0.1`).
+- `CollectionEncryption`: the optional `type` member (the Resource Log Profile's
+  state-document schema identifier, `WasEpochConfiguration` for an encryption
+  descriptor) and the optional `history: { method, resource }` member (the
+  profile's dispatch hint on a point-state document -- never authoritative,
+  absent inside log entry `state`).
 
 ### Changed
 
@@ -9,6 +25,13 @@
   version-monotonic (idempotent re-declaration allowed, decrease/removal/clear
   rejected, raise allowed when the server recognizes the new pair). Type shape
   unchanged.
+
+### Removed
+
+- **BREAKING**: `CollectionEncryptionEpochsSig` and the `epochsSig` member of
+  `CollectionEncryption`, added in 0.3.13. The Resource Log Profile's entry
+  proof replaces the detached epoch-configuration signature; no deployment
+  produced or verified `epochsSig` descriptors.
 
 ## 0.3.13 - 2026-08-05
 

@@ -125,12 +125,20 @@ export interface CollectionEncryptionEpoch {
  *   keyed from the current epoch's secret, which the server does not hold.
  *   Writers verify it before encrypting, so a server-side rollback of
  *   `currentEpoch` (or a fabricated epoch list) fails to authenticate.
- * - `epochsSig` -- a client-computed detached signature over the same epoch
- *   configuration the `epochsMac` covers, by a signing key the reader can
- *   trace to a root of trust outside the descriptor (e.g. a DID document's
- *   verification method). Complements the MAC: the MAC is keyed from a secret
- *   delivered BY the descriptor, so on a reader's first contact with an epoch
- *   it cannot catch a server-minted configuration; the signature can.
+ * - `type` -- the state-document schema identifier of the Resource Log
+ *   Profile (see `./resourceLog`): where the descriptor is governed as a
+ *   resource log, each log entry's `state` carries the full descriptor under
+ *   a `type` member naming its schema (`'WasEpochConfiguration'` for an
+ *   encryption descriptor), and the point-state projection carries the same
+ *   member so it JCS-equals the verified head's `state` after stripping
+ *   `history`.
+ * - `history` -- the Resource Log Profile's dispatch hint on a point-state
+ *   document: the URL of the log resource governing this descriptor
+ *   (`resource`) and an echo of the log's format identifier (`method`,
+ *   deliberately named to mirror the in-log `parameters.method`). Never
+ *   authoritative -- the log's own SCID-committed genesis must confirm the
+ *   method, and a mismatch is refused. Present only on the point-state
+ *   projection, never inside a log entry's `state`.
  * - `hmac` -- a blinded-index HMAC key reference, a forward candidate added
  *   when the client code that consumes it lands. Note the blinded-index key
  *   deliberately does NOT rotate with the epoch: rotating it would invalidate
@@ -144,11 +152,12 @@ export interface CollectionEncryptionEpoch {
  */
 export type CollectionEncryption = {
   scheme: 'edv'
+  type?: string
   version?: number
   currentEpoch?: string
   epochs?: CollectionEncryptionEpoch[]
   epochsMac?: CollectionEncryptionEpochsMac
-  epochsSig?: CollectionEncryptionEpochsSig
+  history?: { method: string; resource: string }
 }
 
 /**
@@ -164,23 +173,6 @@ export interface CollectionEncryptionEpochsMac {
   v: number
   alg: string
   mac: string
-}
-
-/**
- * The signed-epoch-configuration member of a {@link CollectionEncryption}
- * descriptor: a detached signature over the descriptor's epoch configuration
- * by the writing client's signing key. `v` is the signature construction's own
- * version (currently `1`), `alg` the signature algorithm (`EdDSA`), `kid` the
- * signer's public-key identifier (resolved by the reader against a root of
- * trust outside the descriptor), and `sig` the signature, base64url without
- * padding. Verification is a client concern; the server stores and returns
- * this opaquely like the rest of the descriptor.
- */
-export interface CollectionEncryptionEpochsSig {
-  v: number
-  alg: string
-  kid: string
-  sig: string
 }
 
 /**
