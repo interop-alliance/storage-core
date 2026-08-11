@@ -120,11 +120,6 @@ export interface CollectionEncryptionEpoch {
  *   Writers also bind the same version inside each envelope's
  *   AEAD-authenticated protected header, so a downgrade of either copy is
  *   client-detectable.
- * - `epochsMac` -- a client-computed MAC over the epoch configuration
- *   (`scheme` / `version` / `currentEpoch` / the ordered epoch id list),
- *   keyed from the current epoch's secret, which the server does not hold.
- *   Writers verify it before encrypting, so a server-side rollback of
- *   `currentEpoch` (or a fabricated epoch list) fails to authenticate.
  * - `type` -- the state-document schema identifier of the Resource Log
  *   Profile (see `./resourceLog`): where the descriptor is governed as a
  *   resource log, each log entry's `state` carries the full descriptor under
@@ -146,9 +141,7 @@ export interface CollectionEncryptionEpoch {
  *
  * Key **material** never appears in this descriptor: encryption is a
  * per-Collection client concern, never a backend capability, and the server
- * stores this descriptor opaquely while keys stay in the client's keystore (an
- * epoch MAC is ciphertext-class data: only holders of the epoch secret can
- * recompute it).
+ * stores this descriptor opaquely while keys stay in the client's keystore.
  */
 export type CollectionEncryption = {
   scheme: 'edv'
@@ -156,23 +149,7 @@ export type CollectionEncryption = {
   version?: number
   currentEpoch?: string
   epochs?: CollectionEncryptionEpoch[]
-  epochsMac?: CollectionEncryptionEpochsMac
   history?: { method: string; resource: string }
-}
-
-/**
- * The authenticated-epoch-configuration member of a
- * {@link CollectionEncryption} descriptor: an HMAC over the descriptor's epoch
- * configuration, keyed via HKDF from the current epoch's secret. `v` is the
- * MAC construction's own version (currently `1`), `alg` the MAC algorithm
- * (`HS256`), and `mac` the tag, base64url without padding. Verification is a
- * client concern; the server stores and returns this opaquely like the rest
- * of the descriptor.
- */
-export interface CollectionEncryptionEpochsMac {
-  v: number
-  alg: string
-  mac: string
 }
 
 /**

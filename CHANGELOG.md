@@ -1,5 +1,17 @@
 # @interop/storage-core Changelog
 
+## 0.5.0 - TBD
+
+### Changed
+
+- **BREAKING**: `CollectionEncryption`: the `epochsMac` member and the
+  `CollectionEncryptionEpochsMac` interface are removed -- the epoch-
+  configuration MAC is retired stack-wide (with `@interop/was-client@0.32.0`).
+  On a log-governed descriptor its coverage was a strict subset of chain
+  verification, and its classic gaps (whole-configuration replay, fresh
+  fabrication under a newly minted secret) were gaps with or without it.
+  Greenfield: no tolerance for MAC-bearing descriptors, no strip migration.
+
 ## 0.4.0 - 2026-08-10
 
 ### Added
