@@ -1,5 +1,18 @@
 # @interop/storage-core Changelog
 
+## 0.6.0 - TBD
+
+### Added
+
+- Add the optional `generator` and `generatorOrigin` properties to
+  `CollectionDescription` (spec "Collection Data Model"): the DID of the
+  application the Collection was provisioned for and the Web origin it was
+  bound to at provisioning time. Both are controller-asserted -- client-
+  supplied, updatable (so a wallet can backfill existing Collections), and
+  never server-verified -- in contrast to the server-observed, read-only
+  `createdBy`, which under delegated provisioning names the invoker rather
+  than the application.
+
 ## 0.5.0 - 2026-08-10
 
 ### Changed

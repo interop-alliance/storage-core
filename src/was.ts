@@ -191,6 +191,25 @@ export interface CollectionDescription {
    * OPTIONAL (spec "Collection Data Model").
    */
   createdBy?: IDID
+  /**
+   * DID of the application the Collection was provisioned for (the AS2
+   * `generator` sense: the application that generated an object).
+   * Client-supplied and writable by the Space controller -- updatable, so a
+   * wallet can backfill existing Collections -- and persisted by the server.
+   * A controller assertion, not server-verified: contrast the server-observed,
+   * read-only `createdBy`, which under delegated provisioning names the
+   * invoker (the wallet user), never the application. OPTIONAL (spec
+   * "Collection Data Model").
+   */
+  generator?: IDID
+  /**
+   * The Web origin (ASCII serialization) the `generator` DID was bound to at
+   * provisioning time -- e.g. the browser-attested requesting origin of an
+   * App Connect exchange, preserved so attribution survives without the
+   * app-key credential at hand. Same controller-asserted, updatable footing
+   * as `generator`. OPTIONAL (spec "Collection Data Model").
+   */
+  generatorOrigin?: string
   /** absolute URL of the Collection, when the server populates it */
   url?: string
   /**
