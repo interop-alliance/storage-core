@@ -297,10 +297,16 @@ export const RESERVED_COLLECTION_IDS = new Set([
  * reserved route at that position, so it MUST be rejected with 409
  * `reserved-id`. Space ids have no reserved siblings, so no set exists for the
  * `space` kind.
+ *
+ * `meta` is in the set because Collection Metadata is addressed at
+ * `/space/{space_id}/{collection_id}/meta`, which occupies the `{resource_id}`
+ * position -- a Resource named `meta` would shadow it. (The Resource-level
+ * `/meta` sits one level lower, under a `{resource_id}`, and shadows nothing.)
  */
 export const RESERVED_RESOURCE_IDS = new Set([
   'backend',
   'linkset',
+  'meta',
   'policy',
   'query',
   'quota'

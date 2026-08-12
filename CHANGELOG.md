@@ -1,13 +1,24 @@
 # @interop/storage-core Changelog
 
+## 0.8.0 - TBD
+
+### Added
+
+- `CollectionMetadata`: the Collection-level wire type for the reserved `meta`
+  segment of a Collection (`createdAt`, `updatedAt`, `createdBy`, `epoch`,
+  `custom`). Mirrors `ResourceMetadata` minus `contentType` / `size`, which
+  describe a stored representation a Collection does not have.
+- `RESERVED_RESOURCE_IDS`: added `meta`. Collection Metadata occupies the
+  `{resource_id}` position, so a Resource named `meta` would shadow it.
+
 ## 0.7.0 - 2026-08-12
 
 ### Added
 
 - `CollectionEncryption`: the optional `hmac` member -- the Collection's
   blinded-index HMAC key (`id`, `type`, and `recipients`, the key wrapped to
-  each recipient in the same JWE `recipients` entry shape as the epoch
-  secrets). Installed at provisioning or never, and never rotated.
+  each recipient in the same JWE `recipients` entry shape as the epoch secrets).
+  Installed at provisioning or never, and never rotated.
 
 ## 0.6.0 - 2026-08-11
 
@@ -15,12 +26,12 @@
 
 - Add the optional `generator` and `generatorOrigin` properties to
   `CollectionDescription` (spec "Collection Data Model"): the DID of the
-  application the Collection was provisioned for and the Web origin it was
-  bound to at provisioning time. Both are controller-asserted -- client-
-  supplied, updatable (so a wallet can backfill existing Collections), and
-  never server-verified -- in contrast to the server-observed, read-only
-  `createdBy`, which under delegated provisioning names the invoker rather
-  than the application.
+  application the Collection was provisioned for and the Web origin it was bound
+  to at provisioning time. Both are controller-asserted -- client- supplied,
+  updatable (so a wallet can backfill existing Collections), and never
+  server-verified -- in contrast to the server-observed, read-only `createdBy`,
+  which under delegated provisioning names the invoker rather than the
+  application.
 
 ## 0.5.0 - 2026-08-10
 

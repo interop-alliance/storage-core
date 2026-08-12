@@ -524,6 +524,47 @@ export interface ResourceMetadata {
 }
 
 /**
+ * A Collection Metadata object, addressable at the reserved `meta` segment of a
+ * Collection (`/space/{space_id}/{collection_id}/meta`). It is the
+ * Collection-level sibling of {@link ResourceMetadata}, and carries the same
+ * server-managed timestamps, the same read-only `createdBy`, the same opaque
+ * `epoch` stamp, and the same user-writable `custom` envelope.
+ *
+ * It has no `contentType` or `size`: those describe a stored representation,
+ * and a Collection has none -- it is a container, not a document.
+ *
+ * Collection Metadata is stored and versioned independently of the Collection
+ * Description ({@link CollectionDescription}): writing one never bumps the
+ * other's version, so a client may hold an ETag for each without either
+ * invalidating the other.
+ */
+export interface CollectionMetadata {
+  /** RFC3339 date-time the Collection's metadata was first written */
+  createdAt?: string
+  /** RFC3339 date-time the Collection's custom metadata last changed */
+  updatedAt?: string
+  /**
+   * DID of the party whose capability invocation created the Collection.
+   * Server-managed and read-only, on the same terms as
+   * {@link ResourceMetadata.createdBy}: it is not settable through Update
+   * Collection Metadata.
+   */
+  createdBy?: IDID
+  /**
+   * The key-epoch id the `custom` envelope was encrypted under, on an
+   * encrypted Collection. Client-declared and stored opaquely, exactly as
+   * {@link ResourceMetadata.epoch}. Unlike the Resource-level stamp -- which
+   * describes the Resource's content and so survives a metadata-only write --
+   * this stamp describes the `custom` envelope itself, so an update that omits
+   * it clears it rather than preserving a value that would mislabel the new
+   * envelope.
+   */
+  epoch?: string
+  /** user-writable properties (omitted when none are set) */
+  custom?: ResourceMetadataCustom
+}
+
+/**
  * A Backend description object (spec "Backend Data Model"), as returned in the
  * array at `GET /space/:spaceId/backends`. The spec only REQUIRES `id` and
  * defines defaults for the rest; a server that always populates the optional
