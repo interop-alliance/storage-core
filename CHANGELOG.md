@@ -1,5 +1,14 @@
 # @interop/storage-core Changelog
 
+## 0.7.0 - TBD
+
+### Added
+
+- `CollectionEncryption`: the optional `hmac` member -- the Collection's
+  blinded-index HMAC key (`id`, `type`, and `recipients`, the key wrapped to
+  each recipient in the same JWE `recipients` entry shape as the epoch
+  secrets). Installed at provisioning or never, and never rotated.
+
 ## 0.6.0 - 2026-08-11
 
 ### Added

@@ -134,10 +134,18 @@ export interface CollectionEncryptionEpoch {
  *   authoritative -- the log's own SCID-committed genesis must confirm the
  *   method, and a mismatch is refused. Present only on the point-state
  *   projection, never inside a log entry's `state`.
- * - `hmac` -- a blinded-index HMAC key reference, a forward candidate added
- *   when the client code that consumes it lands. Note the blinded-index key
+ * - `hmac` -- the Collection's blinded-index HMAC key: its `id` (the value an
+ *   envelope's `indexed[].hmac.id` and a blinded query's `index` name), its
+ *   `type` (`'Sha256HmacKey2019'`), and the key wrapped once per recipient in
+ *   the same JWE `recipients` entry shape and key-wrap algorithm the epoch
+ *   secrets use, so recipients receive the blinding key exactly the way they
+ *   receive epoch keys. It is installed at Collection provisioning or never
+ *   (an indexable Collection is a property fixed at birth), and it
  *   deliberately does NOT rotate with the epoch: rotating it would invalidate
- *   every blinded index in the Collection on every reader removal.
+ *   every blinded index in the Collection on every reader removal. On a
+ *   recipient removal the leaver's wrap entry is dropped as housekeeping,
+ *   while the key itself is unchanged -- so a removed recipient keeps the
+ *   blinding key (a documented revocation asymmetry).
  *
  * Key **material** never appears in this descriptor: encryption is a
  * per-Collection client concern, never a backend capability, and the server
@@ -150,6 +158,11 @@ export type CollectionEncryption = {
   currentEpoch?: string
   epochs?: CollectionEncryptionEpoch[]
   history?: { method: string; resource: string }
+  hmac?: {
+    id: string
+    type: string
+    recipients: CollectionEncryptionRecipient[]
+  }
 }
 
 /**
