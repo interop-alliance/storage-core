@@ -26,11 +26,11 @@
  * version number -- a future revision is a different identifier reached only
  * through the terminal-handover mechanism.
  */
-export const WAS_RESOURCE_LOG_METHOD = 'was-resource-log:0.1'
+export const RESOURCE_LOG_METHOD = 'resource-log:0.1'
 
 /**
  * The `parameters` of a resource log's genesis (first) entry. `method` is the
- * format identifier ({@link WAS_RESOURCE_LOG_METHOD}) and `scid` the log's
+ * format identifier ({@link RESOURCE_LOG_METHOD}) and `scid` the log's
  * self-certifying identifier -- both are inside the hashed genesis content, so
  * the SCID commits to the format and a host cannot downgrade a log's format
  * without changing its identity. `previousLog` appears only on the genesis of

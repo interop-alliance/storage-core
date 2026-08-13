@@ -1,5 +1,14 @@
 # @interop/storage-core Changelog
 
+## 0.9.0 - TBD
+
+### Changed
+
+- **BREAKING**: Renamed the resource-log format identifier constant
+  `WAS_RESOURCE_LOG_METHOD` (`was-resource-log:0.1`) to `RESOURCE_LOG_METHOD`
+  (`resource-log:0.1`). Both the export name and the identifier value change:
+  the log format is transport-agnostic and is not tied to the WAS storage API.
+
 ## 0.8.0 - 2026-08-12
 
 ### Added
