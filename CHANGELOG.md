@@ -1,5 +1,10 @@
 # @interop/storage-core Changelog
 
+## 0.9.1 - TBD
+
+### Changed
+- Update to latest `@interop/data-integrity-core@8.7.1`.
+
 ## 0.9.0 - 2026-08-13
 
 ### Changed
