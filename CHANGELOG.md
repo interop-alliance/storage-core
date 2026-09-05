@@ -1,5 +1,12 @@
 # @interop/storage-core Changelog
 
+## 0.9.2 - TBD
+
+### Changed
+
+- `ChangesPage` doc: only a `null` checkpoint means the caller has caught up; a
+  page shorter than `limit` does not, since a server may reduce `limit`.
+
 ## 0.9.1 - 2026-08-18
 
 ### Changed

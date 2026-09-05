@@ -430,8 +430,10 @@ export interface ChangeDocument {
 
 /**
  * One page of the `changes` feed. `checkpoint` is the position to resume after,
- * or `null` on an empty page (nothing changed). A page shorter than the
- * requested `limit` means the caller has caught up.
+ * or `null` on an empty page (nothing changed). Only that `null` means the
+ * caller has caught up: a page shorter than the requested `limit` does not,
+ * since a server may reduce `limit` to its own maximum, so a short page can
+ * still be a full server page.
  */
 export interface ChangesPage {
   documents: ChangeDocument[]
