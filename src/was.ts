@@ -166,9 +166,9 @@ export type CollectionEncryption = {
 }
 
 /**
- * One entry of a Collection's `indexes` declaration (spec "Collection Data
- * Model"; the `equality` query profile). Names an attribute the server
- * extracts and indexes from stored Resources:
+ * One entry of a Collection's `plaintext.indexes` declaration (spec
+ * "Collection Data Model"; the `equality` query profile). Names an attribute
+ * the server extracts and indexes from stored Resources:
  *
  * - `source: 'content'` (the default) extracts from the top-level members of a
  *   JSON Resource's stored content, on every content write.
@@ -181,7 +181,7 @@ export type CollectionEncryption = {
  * already claimed by a different Resource in the same Collection
  * (`id-conflict`, 409).
  *
- * A bare string entry in `indexes` is shorthand for
+ * A bare string entry in `plaintext.indexes` is shorthand for
  * `{ name: '...', source: 'content' }`.
  */
 export interface CollectionIndexDeclaration {
@@ -240,20 +240,32 @@ export interface CollectionDescription {
    * key material). Set-once: a server MAY allow declaring it on a Collection
    * that lacks it, but MUST reject changing or clearing an existing descriptor
    * (changing the encryption mode of a populated Collection corrupts its data).
+   *
+   * The counterpart of `plaintext`: at most one of the two is present on a
+   * Description. A server rejects a create or update whose result would carry
+   * both (`invalid-request-body`). The exclusion is by presence, so an empty
+   * `plaintext` object still excludes `encryption`.
    */
   encryption?: CollectionEncryption
   /**
-   * The attributes the server extracts and indexes for the `equality` query
-   * profile (see {@link CollectionIndexDeclaration}); a bare string entry is
-   * shorthand for `{ name, source: 'content' }`. Declared names MUST be unique
-   * across the array regardless of source. Declaring a content-sourced entry
-   * is the Collection's opt-in to the server parsing its JSON Resource content
-   * on write. MUST NOT be combined with an `encryption` descriptor (the server
-   * cannot extract attributes from an opaque envelope -- encrypted Collections
-   * use the `blinded-index` profile instead). Unlike `encryption`, `indexes`
-   * is updatable: entries may be added or removed on an existing Collection.
+   * The server-visible processing declared for a plaintext Collection's
+   * Resources. The counterpart of `encryption`: at most one of the two is
+   * present, by presence (see `encryption`). Absent both, the Collection is a
+   * plaintext Collection with no server-side processing declared. Unlike the
+   * set-once `encryption`, `plaintext` is updatable (added, changed, or
+   * removed) for the Collection's life.
+   *
+   * `indexes` lists the attributes the server extracts and indexes for the
+   * `equality` query profile (see {@link CollectionIndexDeclaration}); a bare
+   * string entry is shorthand for `{ name, source: 'content' }`. Declared
+   * names MUST be unique across the array regardless of source. Declaring a
+   * content-sourced entry is the Collection's opt-in to the server parsing
+   * its JSON Resource content on write. This is server-side plaintext
+   * indexing, distinct from the client-blinded indexes an encrypted
+   * Collection carries in each envelope's `indexed` member and queries
+   * through the `blinded-index` profile.
    */
-  indexes?: Array<string | CollectionIndexDeclaration>
+  plaintext?: { indexes?: Array<string | CollectionIndexDeclaration> }
   /**
    * URL of the Collection's linkset resource (RFC9264); see
    * `SpaceDescription.linkset`. Attached at response time, not persisted.

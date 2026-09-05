@@ -1,9 +1,15 @@
 # @interop/storage-core Changelog
 
-## 0.9.2 - TBD
+## 0.10.0 - TBD
 
 ### Changed
 
+- **BREAKING**: `CollectionDescription.indexes` moved to
+  `CollectionDescription.plaintext.indexes` (no compatibility alias).
+  `plaintext` is the counterpart of `encryption`: at most one is present (by
+  presence; a server rejects both with `invalid-request-body`) and it stays
+  updatable for the Collection's life. The `CollectionIndexDeclaration` entry
+  shape is unchanged.
 - `ChangesPage` doc: only a `null` checkpoint means the caller has caught up; a
   page shorter than `limit` does not, since a server may reduce `limit`.
 
