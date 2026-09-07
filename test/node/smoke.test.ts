@@ -22,6 +22,9 @@ describe('@interop/storage-core', () => {
     expect(ProblemStatusCodes[ProblemTypes.QUOTA_EXCEEDED]).toBe(507)
     expect(ProblemStatusCodes[ProblemTypes.UNSUPPORTED_OPERATION]).toBe(501)
     expect(ProblemStatusCodes[ProblemTypes.PRECONDITION_FAILED]).toBe(412)
+    expect(
+      ProblemStatusCodes[ProblemTypes.ENCRYPTION_HISTORY_LOG_GOVERNED]
+    ).toBe(409)
   })
 
   it('lists the reserved path segments', () => {

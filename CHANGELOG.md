@@ -1,5 +1,20 @@
 # @interop/storage-core Changelog
 
+## 0.11.0 - TBD
+
+### Added
+
+- `ChangeDocument` carries the Resource's current content `etag` and `/meta`
+  `metaEtag`, the quoted validators exactly as the server emits them, so a
+  replica can send `If-Match` from feed state without a read per Resource.
+  `version` / `metaVersion` remain for ordering only; an `ETag` is opaque and is
+  not reconstructed from them.
+- `ProblemTypes.ENCRYPTION_HISTORY_LOG_GOVERNED`
+  (`https://wallet.storage/spec#encryption-history-log-governed`, 409): a direct
+  `encryption` write on a Collection whose descriptor is governed by its
+  `.../meta/log` history log; the served member is derived from the log head, so
+  the Description path is read-only for it.
+
 ## 0.10.0 - 2026-09-05
 
 ### Changed
@@ -16,6 +31,7 @@
 ## 0.9.1 - 2026-08-18
 
 ### Changed
+
 - Update to latest `@interop/data-integrity-core@8.7.1`.
 
 ## 0.9.0 - 2026-08-13

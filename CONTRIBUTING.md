@@ -3,8 +3,8 @@
 Editor setup, code style, and contribution conventions. Coding agents receive
 this file via the include in [AGENTS.md](AGENTS.md).
 
-PRs are welcome: tests plus a short summary of what changed is enough. You
-do not need to touch roadmaps, changelogs, or any cross-repo bookkeeping --
+PRs are welcome: tests plus a short summary of what changed is enough. You do
+not need to touch roadmaps, changelogs, or any cross-repo bookkeeping --
 maintainers handle those at merge. The ecosystem-wide conventions (for
 maintainers) live in the
 [byoe-ecosystem](https://github.com/interop-alliance/byoe-ecosystem) repo.

@@ -252,8 +252,10 @@ export interface CollectionDescription {
    * Resources. The counterpart of `encryption`: at most one of the two is
    * present, by presence (see `encryption`). Absent both, the Collection is a
    * plaintext Collection with no server-side processing declared. Unlike the
-   * set-once `encryption`, `plaintext` is updatable (added, changed, or
-   * removed) for the Collection's life.
+   * set-once `encryption`, `plaintext` is updatable (added or changed) for
+   * the Collection's life; `{}` is its empty state and there is no removal.
+   * A client that wants to change a Collection's encrypted status deletes
+   * the Collection and creates it again.
    *
    * `indexes` lists the attributes the server extracts and indexes for the
    * `equality` query profile (see {@link CollectionIndexDeclaration}); a bare
@@ -412,10 +414,28 @@ export interface ChangeDocument {
   _deleted: boolean
   /** RFC3339 date-time of the change; half of the checkpoint keyset */
   updatedAt: string
-  /** the Resource's monotonic content version (its `ETag` validator) */
+  /**
+   * the Resource's monotonic content version, for ordering and comparison.
+   * Not an `If-Match` value on its own: the server's `ETag` is an opaque
+   * string that embeds more than this number, so a conditional write echoes
+   * `etag` instead.
+   */
   version: number
+  /**
+   * the Resource's current content `ETag`, quoted, exactly as the server
+   * emits it in the response header. Echoed verbatim as `If-Match` on a
+   * conditional content write. Absent when the server does not version the
+   * Resource.
+   */
+  etag?: string
   /** the independent `/meta` version, once metadata has been written */
   metaVersion?: number
+  /**
+   * the `/meta` object's current `ETag`, quoted, exactly as the server emits
+   * it. Echoed verbatim as `If-Match` on a conditional metadata write. Absent
+   * until metadata has been written, or when the server does not version it.
+   */
+  metaEtag?: string
   /**
    * DID of the Resource's creator, when one was recorded. Rides the feed so a
    * replica learns provenance without fetching `/meta` per Resource; a

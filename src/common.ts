@@ -89,6 +89,17 @@ export const ProblemTypes = {
   ENCRYPTION_IMMUTABLE: `${SPEC_URL}#encryption-immutable`,
 
   /**
+   * A Collection update wrote the `encryption` member directly on a
+   * Collection whose descriptor is governed by its history log (the
+   * `.../meta/log` sub-resource). On such a Collection the served member is
+   * derived by the server from the log head's `state`, so the Description
+   * path is read-only for it: a change is made by appending to the log.
+   * Typical status 409. Advertised by backends carrying the
+   * `governed-history-logs` feature.
+   */
+  ENCRYPTION_HISTORY_LOG_GOVERNED: `${SPEC_URL}#encryption-history-log-governed`,
+
+  /**
    * A content write into a Collection whose `encryption` descriptor declares a
    * recognized scheme did not conform to that scheme's envelope profile: the
    * request `Content-Type` was not the scheme's registered media type, or the
@@ -228,6 +239,7 @@ export const ProblemStatusCodes: Record<ProblemType, number> = {
   [ProblemTypes.RESERVED_ID]: 409,
   [ProblemTypes.UNSUPPORTED_BACKEND]: 409,
   [ProblemTypes.ENCRYPTION_IMMUTABLE]: 409,
+  [ProblemTypes.ENCRYPTION_HISTORY_LOG_GOVERNED]: 409,
   [ProblemTypes.ENCRYPTION_SCHEME_MISMATCH]: 422,
   [ProblemTypes.UNSUPPORTED_ENCRYPTION_SCHEME]: 400,
   [ProblemTypes.PRECONDITION_FAILED]: 412,
