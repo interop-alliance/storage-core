@@ -1,5 +1,17 @@
 # @interop/storage-core Changelog
 
+## 0.12.0 - TBD
+
+### Added
+
+- `ProblemTypes.CAPABILITY_ALREADY_REVOKED`
+  (`https://wallet.storage/spec#capability-already-revoked`, 400): a revocation
+  submission whose capability, or a capability in its chain, is already revoked.
+  Emitted only after the submission is authorized, so it is not a
+  revocation-state oracle. A malformed submission or a chain that fails to
+  verify keeps `invalid-request-body`, so a blind resubmission can tell "already
+  done" from "refused".
+
 ## 0.11.0 - 2026-09-07
 
 ### Added

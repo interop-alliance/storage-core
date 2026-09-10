@@ -168,6 +168,18 @@ export const ProblemTypes = {
   /** An uploaded archive is not a valid WAS space export. */
   INVALID_IMPORT: `${SPEC_URL}#invalid-import`,
 
+  /**
+   * A revocation submission names a capability that is already revoked, or
+   * whose delegation chain contains a revoked capability. Typical status 400.
+   * A server emits it only after the submission itself is authorized (the
+   * same masked-authorization order as `not-found`), so it is not a
+   * revocation-state oracle: an unauthorized prober never sees it. Distinct
+   * from `invalid-request-body`, which stays the answer for a malformed
+   * submission or a chain that fails to verify, so a client resubmitting a
+   * revocation blind can tell "already done" from "refused".
+   */
+  CAPABILITY_ALREADY_REVOKED: `${SPEC_URL}#capability-already-revoked`,
+
   /** An underlying storage operation failed (server-side fault). */
   STORAGE_ERROR: `${SPEC_URL}#storage-error`,
 
@@ -250,6 +262,7 @@ export const ProblemStatusCodes: Record<ProblemType, number> = {
   [ProblemTypes.INVALID_AUTHORIZATION_HEADER]: 400,
   [ProblemTypes.CONTROLLER_MISMATCH]: 400,
   [ProblemTypes.INVALID_IMPORT]: 400,
+  [ProblemTypes.CAPABILITY_ALREADY_REVOKED]: 400,
   [ProblemTypes.STORAGE_ERROR]: 500,
   [ProblemTypes.QUOTA_EXCEEDED]: 507,
   [ProblemTypes.PAYLOAD_TOO_LARGE]: 413,
