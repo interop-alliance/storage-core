@@ -19,6 +19,35 @@ items move to [archived-roadmap.md](archived-roadmap.md) once shipped.
 
 ---
 
+### SC-3: Typed denial reasons for refused capability invocations
+
+- status: in-progress
+- priority: low
+- labels: errors, registry, zcap
+- touches:
+  - was-teaching-server: WAS-57 emits them from the capability-invocation
+    verification path
+  - was-client: maps them to its own error names
+  - was-conformance-suite: optional negative-path assertions
+  - wallet-attached-storage-spec: the types join the revocation spec text
+    (WASS-4) when that lands
+- acceptance:
+  - [x] `ProblemTypes` gains `CAPABILITY_REVOKED` (`#capability-revoked`) and
+        `CAPABILITY_EXPIRED` (`#capability-expired`), status 404 in the status
+        table (settled 2026-09-09: the status stays the merged `not-found`, the
+        `type` is the only new signal)
+  - [x] Each entry's doc comment states that a server emits it only after the
+        request signature and delegation chain verified, so it is not an oracle
+        for a prober
+  - [x] CHANGELOG entry
+
+Discovered 2026-09-09 from was-teaching-server WAS-57. Today every refused
+invocation collapses into `not-found`, so a holder cannot tell a revoked grant
+from an expired one or from a verification failure.
+
+2026-09-09: the registry half landed (unpublished, 0.13.0); the item stays open
+until the `touches` entries ship.
+
 ### SC-2: Problem type for an already-revoked revocation submission
 
 - status: in-progress
@@ -45,5 +74,5 @@ reports a resubmission with `INVALID_REQUEST_BODY`, the same type as a chain
 that fails to verify, and a client resuming a torn ceremony cannot tell the two
 apart.
 
-2026-09-09: the registry half landed (unpublished, 0.12.0); the item stays
-open until the `touches` entries ship.
+2026-09-09: the registry half landed (unpublished, 0.12.0); the item stays open
+until the `touches` entries ship.

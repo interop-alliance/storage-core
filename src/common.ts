@@ -180,6 +180,28 @@ export const ProblemTypes = {
    */
   CAPABILITY_ALREADY_REVOKED: `${SPEC_URL}#capability-already-revoked`,
 
+  /**
+   * A capability invocation was refused because a capability in its
+   * delegation chain has a stored revocation. Typical status 404: the status
+   * stays the merged `not-found` every authorization denial carries, and the
+   * `type` is the only new signal. A server emits it only for a caller whose
+   * request signature and delegation chain verified (the revocation check
+   * runs after those), so it reaches the holder of the affected chain and no
+   * one else: a prober without the capability and its invoking key gets the
+   * plain `not-found`.
+   */
+  CAPABILITY_REVOKED: `${SPEC_URL}#capability-revoked`,
+
+  /**
+   * A capability invocation was refused because the invoked capability, or a
+   * capability in its delegation chain, has expired. Typical status 404, on
+   * the same terms as `capability-revoked`: emitted only after the request
+   * signature and the chain's delegation proofs verified, so it tells a
+   * holder something already written in the capability it presented
+   * (`expires`) and tells a prober nothing.
+   */
+  CAPABILITY_EXPIRED: `${SPEC_URL}#capability-expired`,
+
   /** An underlying storage operation failed (server-side fault). */
   STORAGE_ERROR: `${SPEC_URL}#storage-error`,
 
@@ -263,6 +285,8 @@ export const ProblemStatusCodes: Record<ProblemType, number> = {
   [ProblemTypes.CONTROLLER_MISMATCH]: 400,
   [ProblemTypes.INVALID_IMPORT]: 400,
   [ProblemTypes.CAPABILITY_ALREADY_REVOKED]: 400,
+  [ProblemTypes.CAPABILITY_REVOKED]: 404,
+  [ProblemTypes.CAPABILITY_EXPIRED]: 404,
   [ProblemTypes.STORAGE_ERROR]: 500,
   [ProblemTypes.QUOTA_EXCEEDED]: 507,
   [ProblemTypes.PAYLOAD_TOO_LARGE]: 413,

@@ -1,5 +1,20 @@
 # @interop/storage-core Changelog
 
+## 0.13.0 - TBD
+
+### Added
+
+- `ProblemTypes.CAPABILITY_REVOKED`
+  (`https://wallet.storage/spec#capability-revoked`, 404) and
+  `ProblemTypes.CAPABILITY_EXPIRED`
+  (`https://wallet.storage/spec#capability-expired`, 404): typed denial reasons
+  for a capability invocation refused because a capability in its chain is
+  revoked, or because the invoked capability or one in its chain has expired.
+  The status stays the merged `not-found` 404; only `type` changes. A server
+  emits them only after the request signature and the chain's delegation proofs
+  verified, so they reach the holder of the affected chain and never a prober.
+  Every other verification failure keeps `not-found`.
+
 ## 0.12.0 - 2026-09-09
 
 ### Added
