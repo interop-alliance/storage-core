@@ -337,6 +337,7 @@ export const RESERVED_COLLECTION_IDS = new Set([
   'export',
   'import',
   'linkset',
+  'meta',
   'policy',
   'query',
   'quotas'

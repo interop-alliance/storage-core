@@ -1,5 +1,11 @@
 # @interop/storage-core Changelog
 
+## 0.14.1 - TBD
+
+### Added
+
+- Add `meta` to `RESERVED_COLLECTION_IDS`.
+
 ## 0.14.0 - 2026-09-11
 
 ### Changed
