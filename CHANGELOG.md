@@ -1,5 +1,37 @@
 # @interop/storage-core Changelog
 
+## 0.14.0 - TBD
+
+### Changed
+
+- **BREAKING**: `CollectionDescription` and `CollectionMetadata` are merged into
+  a single `CollectionMetadata`, the object served at `/space/{s}/{c}/meta`
+  (spec "Collection Metadata Data Model"). It carries the former Description
+  members (`id`, `type`, `name`, `generator`, `generatorOrigin`, `backend`,
+  `encryption`, `plaintext`, `url`, `linkset`, `createdBy`) beside `createdAt`,
+  `updatedAt`, `epoch`, and `custom`. `CollectionDescription` is removed with no
+  alias. Note `CollectionMetadata` keeps its name but changes meaning: code that
+  imports it and only touches the annotation members still compiles while now
+  naming the whole object.
+- **BREAKING**: the two objects no longer version independently. One
+  `metaVersion`, surfaced as a strong `ETag`, covers configuration and
+  annotation writes alike, so a client holds one validator per Collection rather
+  than one per surface. `If-None-Match: *` on the object means "create only if
+  the Collection does not exist".
+- **BREAKING**: `SpaceDescription` is renamed `SpaceMetadata`, matching the
+  spec's "Space Metadata object" served at `/space/{s}/meta`. No members change.
+- `createdAt` on the merged object dates the Collection, not a separately
+  written metadata object, so the "may postdate the Collection's creation"
+  caveat is gone; `updatedAt` dates the object's last modification.
+- Doc comments on the container `url` members (`SpaceMetadata`,
+  `CollectionMetadata`, `SpaceSummary`, `SpaceListing`, `CollectionSummary`,
+  `CollectionsList`, `CollectionResourcesList`) name the canonical
+  trailing-slash form. `ResourceSummary.url` is unchanged -- a Resource is not a
+  container.
+- Problem-type doc comments for `unsupported-backend`, `reserved-id`,
+  `encryption-immutable`, and `encryption-history-log-governed` describe writes
+  to the merged Metadata object. No problem types added or removed.
+
 ## 0.13.0 - 2026-09-09
 
 ### Added

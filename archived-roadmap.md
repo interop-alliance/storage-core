@@ -46,6 +46,78 @@ indexes of an encrypted Collection in prose. The flat `indexes` shipped here in
 0.3.6 before the spec text existed; nothing downstream consumes it except the
 reference server, so the move is cheap now.
 
+### SC-4: Merge `CollectionDescription` and `CollectionMetadata`; rename `SpaceDescription`
+
+- status: done (2026-09-11)
+- priority: high
+- labels: was-v0.5, breaking, wire-types
+- touches:
+  - wallet-attached-storage-spec: shipped -- WASS-29 landed the spec text
+    2026-09-11 (decision
+    `_spec/decisions/0005-container-descriptions-live-at-meta.md`)
+  - storage-core: `src/was.ts` (the two Collection types and their doc comments,
+    `SpaceDescription`, and the container `url` members of `SpaceSummary`,
+    `SpaceListing`, `CollectionSummary`, `CollectionsList`,
+    `CollectionResourcesList`); AGENTS.md; a CHANGELOG entry naming the break
+  - was-client: WCL-41 consumes the merged type
+  - was-teaching-server: its WASS-29 item persists and serves the merged object
+  - was-conformance-suite: its WASS-29 checks assert the merged shape
+  - encrypted-collections-spec: ECS-8 is the prose half; the `custom` envelope
+    and its `was.collection` binding are unchanged
+- acceptance:
+  - [x] One exported type carries the merged Collection Metadata object: the
+        former `CollectionDescription` members (`id`, `type`, `name`,
+        `generator`, `generatorOrigin`, `backend`, `encryption`, `plaintext`,
+        `url`, `linkset`, `createdBy`) beside the former `CollectionMetadata`
+        members (`createdAt`, `updatedAt`, `custom`, `epoch`), with `createdBy`
+        appearing once
+  - [x] The name settled before implementation. Both current names are exported
+        public API, so this is a rename of one and a deletion of the other
+        either way. Settled 2026-09-11: the merged type is `CollectionMetadata`
+        and the Space type is `SpaceMetadata`, matching the spec's
+        `#collection-metadata-data-model` / `#space-metadata-data-model`
+        sections; `CollectionDescription` and `SpaceDescription` are removed
+        with no alias
+  - [x] The `CollectionMetadata` doc block that today states the invariant this
+        change reverses -- "Collection Metadata is stored and versioned
+        independently of the Collection Description... writing one never bumps
+        the other's version" -- is replaced by the single-validator rule: one
+        `metaVersion` covers configuration and annotation writes alike, and
+        `If-None-Match: *` means "create only if the Collection does not exist"
+  - [x] The timestamps' meaning is corrected in the doc comments: `createdAt`
+        now describes the Collection, not a separately-written metadata object,
+        so the "may postdate the Collection's creation" caveat goes away
+  - [x] `SpaceDescription` is renamed to match the spec's "Space Metadata
+        object", with its `url` doc comment naming the canonical trailing-slash
+        form
+  - [x] The container `url` doc comments say the value is canonically
+        trailing-slash (`CollectionSummary.url` today says
+        `/space/:spaceId/:collectionId`); `ResourceSummary.url` is left alone,
+        since a Resource is not a container
+  - [x] No new problem types. `RESERVED_ID`, `ID_CONFLICT`,
+        `ENCRYPTION_IMMUTABLE`, `ENCRYPTION_SCHEME_MISMATCH`,
+        `ENCRYPTION_HISTORY_LOG_GOVERNED`, and `UNSUPPORTED_OPERATION` all carry
+        over; their doc comments now describe writes to the merged object rather
+        than to a Description-only surface
+
+Context: WAS v0.5 serves a Collection's description and its annotations as one
+object at `/space/{s}/{c}/meta`, with one validator. storage-core models them
+today as two exported types, `CollectionDescription` and `CollectionMetadata`,
+whose doc comments assert the independence the merge removes. Every other party
+to the contract reads its shapes from here, so the merged type is the first
+thing that has to land: was-client, the reference server, and the conformance
+suite all depend on it.
+
+This repo holds types only -- no path builders, no URL helpers -- so the
+trailing-slash half of WASS-29 reaches it as doc-comment wording on the
+container `url` members, nothing more.
+
+2026-09-11: the storage-core half landed. `CollectionMetadata` is the merged
+object and `SpaceMetadata` the renamed Space one, both with no compatibility
+alias; the CHANGELOG names the break under 0.14.0. The `touches` entries in
+was-client, was-teaching-server, and was-conformance-suite pick it up from the
+published release.
+
 ## Errors
 
 ### SC-2: Problem type for an already-revoked revocation submission

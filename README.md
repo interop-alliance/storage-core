@@ -32,9 +32,9 @@ live here too. The source is organized by domain to leave room for that:
   the RFC9457 problem-type registry + `application/problem+json` body shapes +
   canonical code-to-status map, the storage-limit shape, the RFC9264 linkset
   shapes, and the reserved path-segment registry.
-- `src/was.ts` -- the WAS data model: Space / Collection / Resource descriptions
-  and summaries, listing shapes, resource metadata, backend descriptor / usage,
-  the quota report, and the policy document.
+- `src/was.ts` -- the WAS data model: the Space / Collection Metadata objects,
+  Resource summaries, listing shapes, resource metadata, backend descriptor /
+  usage, the quota report, and the policy document.
 - `src/edv.ts` -- (later) the EDV data model.
 
 The package is **pure types plus a few `const` values** (`ProblemTypes`,
@@ -70,7 +70,7 @@ pnpm install
 import {
   ProblemTypes,
   ProblemStatusCodes,
-  type SpaceDescription,
+  type SpaceMetadata,
   type SpaceQuotaReport
 } from '@interop/storage-core'
 

@@ -68,32 +68,34 @@ export const ProblemTypes = {
   /**
    * A client-supplied `id` collides with a segment from the spec's Reserved
    * Path Segment Registry (e.g. a Collection named `export` would shadow
-   * `/space/{id}/export`). Typical status 409.
+   * `/space/{id}/export`, and one named `meta` would shadow the Space's
+   * Metadata object). Typical status 409.
    */
   RESERVED_ID: `${SPEC_URL}#reserved-id`,
 
   /**
-   * A Collection create/update names a `backend` id that is not in the Space's
-   * backends-available list. Typical status 409.
+   * A write to a Collection's Metadata object names a `backend` id that is not
+   * in the Space's backends-available list. Typical status 409.
    */
   UNSUPPORTED_BACKEND: `${SPEC_URL}#unsupported-backend`,
 
   /**
-   * A Collection update tried to change or clear an existing client-side
-   * `encryption` descriptor. The descriptor is set-once: it may be declared
-   * on a Collection that lacks one, but changing its scheme (or clearing it)
-   * on a populated Collection would corrupt the stored, client-encrypted
-   * Resources.
+   * A write to a Collection's Metadata object tried to change or clear an
+   * existing client-side `encryption` descriptor. The descriptor is set-once:
+   * it may be declared on a Collection that lacks one, but changing its scheme
+   * (or clearing it) on a populated Collection would corrupt the stored,
+   * client-encrypted Resources.
    * Typical status 409.
    */
   ENCRYPTION_IMMUTABLE: `${SPEC_URL}#encryption-immutable`,
 
   /**
-   * A Collection update wrote the `encryption` member directly on a
-   * Collection whose descriptor is governed by its history log (the
-   * `.../meta/log` sub-resource). On such a Collection the served member is
-   * derived by the server from the log head's `state`, so the Description
-   * path is read-only for it: a change is made by appending to the log.
+   * A write to a Collection's Metadata object set the `encryption` member
+   * directly on a Collection whose descriptor is governed by its history log
+   * (the `.../meta/log` sub-resource). On such a Collection the served member
+   * is derived by the server from the log head's `state`, so the Metadata
+   * object is read-only for that member: a change is made by appending to the
+   * log.
    * Typical status 409. Advertised by backends carrying the
    * `governed-history-logs` feature.
    */

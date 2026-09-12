@@ -3,8 +3,8 @@
  */
 /**
  * The Wallet Attached Storage (WAS) data model: the on-the-wire JSON shapes a
- * WAS server emits and a client parses -- Space / Collection / Resource
- * descriptions and summaries, listing shapes, resource metadata, the backend
+ * WAS server emits and a client parses -- the Space / Collection Metadata
+ * objects, Resource summaries, listing shapes, resource metadata, the backend
  * descriptor / usage shapes, the quota report, and the access-control policy
  * document.
  *
@@ -23,9 +23,12 @@ import type { IDID } from '@interop/data-integrity-core'
 import type { Action, StorageLimit } from './common.js'
 
 /**
- * A Space Description object -- the metadata stored for a Space.
+ * A Space Metadata object (spec "Space Metadata Data Model"), addressable at
+ * the reserved `meta` segment of a Space (`/space/{space_id}/meta`). It is the
+ * Space's description: the properties stored for the Space, served as one
+ * object.
  */
-export interface SpaceDescription {
+export interface SpaceMetadata {
   id: string
   /** e.g. `['Space']` */
   type: string[]
@@ -38,11 +41,15 @@ export interface SpaceDescription {
    * Server-managed and read-only: a value supplied in a write body is ignored,
    * and the recorded value is preserved across later writes. Distinct from
    * `controller` -- under delegated provisioning the creator need not be the
-   * owner. OPTIONAL (spec "Space Data Model"): an absent value means "not
-   * recorded", not "no creator".
+   * owner. OPTIONAL (spec "Space Metadata Data Model"): an absent value means
+   * "not recorded", not "no creator".
    */
   createdBy?: IDID
-  /** absolute URL of the Space, when the server populates it */
+  /**
+   * absolute URL of the Space, when the server populates it. A Space is a
+   * container, so the canonical form carries a trailing slash
+   * (`/space/{space_id}/`).
+   */
   url?: string
   /**
    * URL of the Space's linkset resource (RFC9264), where auxiliary resources
@@ -93,7 +100,7 @@ export interface CollectionEncryptionEpoch {
 /**
  * The client-side encryption descriptor for a Collection -- a non-secret,
  * declared property any authorized reader can discover by reading the
- * Collection Description, to learn that the Collection's Resources are
+ * Collection's Metadata object, to learn that the Collection's Resources are
  * client-encrypted and which scheme was used, so it selects the matching codec
  * and supplies its own keys from its wallet/keystore.
  *
@@ -191,17 +198,34 @@ export interface CollectionIndexDeclaration {
 }
 
 /**
- * A Collection Description object -- the metadata stored for a Collection.
+ * A Collection Metadata object (spec "Collection Metadata Data Model"),
+ * addressable at the reserved `meta` segment of a Collection
+ * (`/space/{space_id}/{collection_id}/meta`). It is the Collection's
+ * description and its annotations as one object: the configuration members
+ * (`backend`, `encryption` / `plaintext`, `generator`) beside the user-writable
+ * `custom` and the server-managed timestamps.
+ *
+ * It has no `contentType` or `size`, unlike its Resource-level sibling
+ * {@link ResourceMetadata}: those describe a stored representation, and a
+ * Collection has none -- it is a container, not a document.
+ *
+ * One validator covers the whole object. The server-managed `metaVersion`,
+ * surfaced as a strong `ETag` on read, advances on configuration and annotation
+ * writes alike, so a write to `backend` and a write to `custom` bump the same
+ * counter. A client holds one ETag for the Collection, not one per surface.
+ * Because this object exists exactly as long as its Collection does,
+ * `If-None-Match: *` means "create only if the Collection does not exist".
  */
-export interface CollectionDescription {
+export interface CollectionMetadata {
   id: string
   /** e.g. `['Collection']` */
   type: string[]
   name?: string
   /**
    * DID of the party whose capability invocation created the Collection.
-   * Server-managed and read-only, on the same terms as the Space's `createdBy`.
-   * OPTIONAL (spec "Collection Data Model").
+   * Server-managed and read-only, on the same terms as the Space's `createdBy`,
+   * and not settable through a write to this object. OPTIONAL (spec
+   * "Collection Metadata Data Model").
    */
   createdBy?: IDID
   /**
@@ -212,7 +236,7 @@ export interface CollectionDescription {
    * A controller assertion, not server-verified: contrast the server-observed,
    * read-only `createdBy`, which under delegated provisioning names the
    * invoker (the wallet user), never the application. OPTIONAL (spec
-   * "Collection Data Model").
+   * "Collection Metadata Data Model").
    */
   generator?: IDID
   /**
@@ -220,10 +244,14 @@ export interface CollectionDescription {
    * provisioning time -- e.g. the browser-attested requesting origin of an
    * App Connect exchange, preserved so attribution survives without the
    * app-key credential at hand. Same controller-asserted, updatable footing
-   * as `generator`. OPTIONAL (spec "Collection Data Model").
+   * as `generator`. OPTIONAL (spec "Collection Metadata Data Model").
    */
   generatorOrigin?: string
-  /** absolute URL of the Collection, when the server populates it */
+  /**
+   * absolute URL of the Collection, when the server populates it. A Collection
+   * is a container, so the canonical form carries a trailing slash
+   * (`/space/{space_id}/{collection_id}/`).
+   */
   url?: string
   /**
    * The storage backend selected for this Collection (spec "Collection Backend
@@ -241,8 +269,8 @@ export interface CollectionDescription {
    * that lacks it, but MUST reject changing or clearing an existing descriptor
    * (changing the encryption mode of a populated Collection corrupts its data).
    *
-   * The counterpart of `plaintext`: at most one of the two is present on a
-   * Description. A server rejects a create or update whose result would carry
+   * The counterpart of `plaintext`: at most one of the two is present on this
+   * object. A server rejects a create or update whose result would carry
    * both (`invalid-request-body`). The exclusion is by presence, so an empty
    * `plaintext` object still excludes `encryption`.
    */
@@ -270,9 +298,32 @@ export interface CollectionDescription {
   plaintext?: { indexes?: Array<string | CollectionIndexDeclaration> }
   /**
    * URL of the Collection's linkset resource (RFC9264); see
-   * `SpaceDescription.linkset`. Attached at response time, not persisted.
+   * `SpaceMetadata.linkset`. Attached at response time, not persisted.
    */
   linkset?: string
+  /** RFC3339 date-time the Collection was created */
+  createdAt?: string
+  /** RFC3339 date-time this Metadata object was last modified */
+  updatedAt?: string
+  /**
+   * The key-epoch id the `custom` envelope was encrypted under, on an
+   * encrypted Collection. Client-declared and stored opaquely, exactly as
+   * {@link ResourceMetadata.epoch}. Unlike the Resource-level stamp -- which
+   * describes the Resource's content and so survives a metadata-only write --
+   * this stamp describes the `custom` envelope itself, so an update that omits
+   * it clears it rather than preserving a value that would mislabel the new
+   * envelope.
+   */
+  epoch?: string
+  /**
+   * The user's annotations (omitted when none are set), the same shape the
+   * Resource level carries in {@link ResourceMetadataCustom}. A Collection
+   * therefore has two name slots: the top-level `name` above, which listings
+   * surface, and `custom.name`. On an encrypted Collection this member is
+   * stored as the declared scheme's opaque envelope, while every other member
+   * of this object stays plaintext.
+   */
+  custom?: ResourceMetadataCustom
 }
 
 /**
@@ -293,7 +344,10 @@ export interface PolicyDocument {
 export interface SpaceSummary {
   id: string
   name?: string
-  /** relative URL of the Space */
+  /**
+   * relative URL of the Space, `/space/:spaceId/`. A Space is a container, so
+   * the canonical form carries a trailing slash.
+   */
   url: string
 }
 
@@ -302,6 +356,7 @@ export interface SpaceSummary {
  * the repository the caller is authorized to see.
  */
 export interface SpaceListing {
+  /** relative URL of the listing itself, canonically `/spaces/` */
   url: string
   /**
    * The total number of Spaces in the listing. A paginating server MAY omit it
@@ -326,7 +381,10 @@ export interface SpaceListing {
 /** One entry in a {@link CollectionsList} (a Collection within a Space). */
 export interface CollectionSummary {
   id: string
-  /** relative URL, `/space/:spaceId/:collectionId` */
+  /**
+   * relative URL of the Collection, `/space/:spaceId/:collectionId/`. A
+   * Collection is a container, so the canonical form carries a trailing slash.
+   */
   url: string
   name: string
   /**
@@ -347,6 +405,10 @@ export interface CollectionSummary {
  * {@link CollectionResourcesList}.
  */
 export interface CollectionsList {
+  /**
+   * relative URL of the Space whose Collections are listed,
+   * `/space/:spaceId/`, canonically trailing-slash
+   */
   url: string
   totalItems: number
   items: CollectionSummary[]
@@ -447,7 +509,7 @@ export interface ChangeDocument {
    * declared one (see {@link ResourceMetadata.epoch}). Rides the feed so a
    * replicating reader can pick the right epoch key without fetching `/meta`
    * per Resource; a puller encountering an epoch id it does not know must
-   * re-read the Collection Description (a rekey changes the description only
+   * re-read the Collection's Metadata object (a rekey changes that object only
    * and emits no feed entry).
    */
   epoch?: string
@@ -479,10 +541,14 @@ export interface ChangesPage {
  */
 export interface CollectionResourcesList {
   id: string
+  /**
+   * relative URL of the Collection, `/space/:spaceId/:collectionId/`,
+   * canonically trailing-slash
+   */
   url: string
   /**
-   * The listing-level name (the Collection's name). Mirrors the Collection
-   * Description's `name`.
+   * The listing-level name (the Collection's name). Mirrors the top-level
+   * `name` of the Collection's Metadata object, not its `custom.name`.
    */
   name?: string
   type: string[]
@@ -551,47 +617,6 @@ export interface ResourceMetadata {
    * `custom`, not inside it: on an encrypted Collection `custom` IS the opaque
    * envelope and is full-replaced by every metadata write, so a value inside
    * it would be lost.
-   */
-  epoch?: string
-  /** user-writable properties (omitted when none are set) */
-  custom?: ResourceMetadataCustom
-}
-
-/**
- * A Collection Metadata object, addressable at the reserved `meta` segment of a
- * Collection (`/space/{space_id}/{collection_id}/meta`). It is the
- * Collection-level sibling of {@link ResourceMetadata}, and carries the same
- * server-managed timestamps, the same read-only `createdBy`, the same opaque
- * `epoch` stamp, and the same user-writable `custom` envelope.
- *
- * It has no `contentType` or `size`: those describe a stored representation,
- * and a Collection has none -- it is a container, not a document.
- *
- * Collection Metadata is stored and versioned independently of the Collection
- * Description ({@link CollectionDescription}): writing one never bumps the
- * other's version, so a client may hold an ETag for each without either
- * invalidating the other.
- */
-export interface CollectionMetadata {
-  /** RFC3339 date-time the Collection's metadata was first written */
-  createdAt?: string
-  /** RFC3339 date-time the Collection's custom metadata last changed */
-  updatedAt?: string
-  /**
-   * DID of the party whose capability invocation created the Collection.
-   * Server-managed and read-only, on the same terms as
-   * {@link ResourceMetadata.createdBy}: it is not settable through Update
-   * Collection Metadata.
-   */
-  createdBy?: IDID
-  /**
-   * The key-epoch id the `custom` envelope was encrypted under, on an
-   * encrypted Collection. Client-declared and stored opaquely, exactly as
-   * {@link ResourceMetadata.epoch}. Unlike the Resource-level stamp -- which
-   * describes the Resource's content and so survives a metadata-only write --
-   * this stamp describes the `custom` envelope itself, so an update that omits
-   * it clears it rather than preserving a value that would mislabel the new
-   * envelope.
    */
   epoch?: string
   /** user-writable properties (omitted when none are set) */
