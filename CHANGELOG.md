@@ -1,5 +1,14 @@
 # @interop/storage-core Changelog
 
+## 0.15.0 - TBD
+
+### Added
+
+- Add `ServiceDescription`, the server-wide document found through the
+  `Link: <...>; rel="service"` header (spec "Service Description Data Model"),
+  with `ServiceDescriptionVersionEntry` for any specification's version entry
+  and `PwsVersionEntry` for the WAS entry.
+
 ## 0.14.1 - 2026-09-12
 
 ### Added

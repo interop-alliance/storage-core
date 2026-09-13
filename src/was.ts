@@ -5,8 +5,8 @@
  * The Wallet Attached Storage (WAS) data model: the on-the-wire JSON shapes a
  * WAS server emits and a client parses -- the Space / Collection Metadata
  * objects, Resource summaries, listing shapes, resource metadata, the backend
- * descriptor / usage shapes, the quota report, and the access-control policy
- * document.
+ * descriptor / usage shapes, the quota report, the access-control policy
+ * document, and the service description.
  *
  * These types are modeled to what the spec *guarantees* (e.g. on a
  * {@link BackendDescriptor} only `id` is required). A producer that always
@@ -795,4 +795,72 @@ export interface ImportStats {
   resourcesSkipped: number
   policiesCreated: number
   policiesSkipped: number
+}
+
+/**
+ * The service description (spec "Service Description Data Model"): the
+ * server-wide JSON document a client reads before its first structural
+ * request, found by following the `Link: <...>; rel="service"` header every
+ * response carries. It names the specification versions the server speaks.
+ *
+ * - `url` -- the document's own canonical URL, so a copy (from a cache, or a
+ *   DID document) can be refetched.
+ * - `specs` -- keyed by each specification's self-declared persistent
+ *   identifier, compared as an opaque string. Each value lists one
+ *   {@link ServiceDescriptionVersionEntry} per version the server implements.
+ *   A client ignores keys it does not know and picks the highest version it
+ *   understands under the keys it does.
+ * - `instance` -- the operator's optional disclosure of the deployed software.
+ *   A client must not gate any behavior on it.
+ *
+ * Every URL in the document is absolute.
+ */
+export interface ServiceDescription {
+  url: string
+  specs: Record<string, ServiceDescriptionVersionEntry[]>
+  instance?: {
+    name?: string
+    version?: string
+    source?: string
+    homepage?: string
+  }
+}
+
+/**
+ * One version of one specification in a {@link ServiceDescription}'s `specs`
+ * (spec "version entry"). Only `version` and `url` are common to every entry.
+ * The owning specification defines the rest, so the entry stays open to
+ * members this type does not name. The WAS entry is
+ * {@link PwsVersionEntry}.
+ *
+ * - `version` -- the bare `major.minor` version, such as `"0.5"`. A client
+ *   ignores an entry without one.
+ * - `url` -- the specification document at exactly this version.
+ */
+export interface ServiceDescriptionVersionEntry {
+  version: string
+  url?: string
+  [member: string]: unknown
+}
+
+/**
+ * The WAS specification's version entry in a {@link ServiceDescription}
+ * (spec "This specification's version entry").
+ *
+ * - `spaces` -- the Spaces Repository URL. Absent when the server does not
+ *   implement it.
+ * - `features` -- tokens naming the optional sections the server implements.
+ *   Same contract as {@link BackendDescriptor} `features`: the vocabulary is
+ *   open, a client ignores tokens it does not recognize, and an absent token
+ *   means "not supported". A token a Backend advertises is not repeated here.
+ * - `signatureAlgorithms` -- the JSON Web Algorithms identifiers accepted on
+ *   capability invocations (`EdDSA` for Ed25519).
+ * - `zcapCryptosuites` -- the cryptosuites accepted on capability delegation
+ *   proofs, such as `eddsa-jcs-2022`.
+ */
+export interface PwsVersionEntry extends ServiceDescriptionVersionEntry {
+  spaces?: string
+  features?: string[]
+  signatureAlgorithms?: string[]
+  zcapCryptosuites?: string[]
 }

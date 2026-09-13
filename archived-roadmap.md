@@ -118,6 +118,39 @@ alias; the CHANGELOG names the break under 0.14.0. The `touches` entries in
 was-client, was-teaching-server, and was-conformance-suite pick it up from the
 published release.
 
+### SC-5: Service description wire types
+
+- status: done (2026-09-13)
+- priority: high
+- labels: was-v0.5, discovery, wire-types
+- touches:
+  - wallet-attached-storage-spec: waived -- the Service Description section,
+    drafted on branch `service-description` (decision
+    `_spec/decisions/0006-service-description.md`)
+  - storage-core: `src/was.ts`; a CHANGELOG entry
+  - was-teaching-server: waived -- WAS-98 there tracks replacing its hand-built
+    return type with `ServiceDescription`
+  - was-client: waived -- the fetch/parse helper and version selection consume
+    these types (item TBD there)
+- acceptance:
+  - [x] `ServiceDescription` carries `url` and `specs` (both required) and the
+        optional `instance` object (`name`, `version`, `source`, `homepage`)
+  - [x] `ServiceDescriptionVersionEntry` carries `version` (required) and `url`
+        (optional), and stays open to members the owning specification defines
+  - [x] `PwsVersionEntry` adds the optional `spaces`, `features`,
+        `signatureAlgorithms`, and `zcapCryptosuites`
+  - [x] The exported type names are signed off (2026-09-13:
+        `ServiceDescription`, `ServiceDescriptionVersionEntry`,
+        `PwsVersionEntry`)
+  - [x] Published (consumption by was-teaching-server rides WAS-98 there)
+
+The types model the spec's guarantees, so every WAS entry member is optional.
+The `https://w3id.org/pws` identifier is not exported as a constant while the
+spec marks it provisional.
+
+2026-09-13: published as 0.15.0; archived. The server's consumption rides
+WAS-98, and the spec text rides its `service-description` branch.
+
 ## Errors
 
 ### SC-2: Problem type for an already-revoked revocation submission
