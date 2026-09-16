@@ -639,29 +639,12 @@ export interface ResourceMetadata {
  * - `persistence` -- whether the storage engine keeps data on persistent media
  *   that survives a restart (`durable`) or only in memory (`volatile`). Spec
  *   default: `durable`.
- * - `features` -- the optional capability vocabulary a backend advertises so
- *   clients can gate behavior on the optional _server affordances_ the backend
- *   actually provides. Additive and optional: an omitted `features` (or one not
- *   listing a given token) means the backend makes no claim to that affordance,
- *   so clients MUST treat an absent feature as unsupported rather than assuming
- *   a default. Each token names something the server must actively do. The
- *   currently defined tokens:
- *     - `conditional-writes` -- the backend enforces previous+1 `sequence` /
- *       `If-Match` conditional writes (a general WAS mechanism EDV is the first
- *       customer for).
- *     - `blinded-index-query` -- the backend serves the blinded-index profile
- *       of the reserved `/query` endpoint.
- *     - `chunked-streams` -- the backend supports chunk addressing for large
- *       blobs (the reserved `/{resourceId}/chunks/{n}` sub-segment).
- *   The vocabulary is open: backends MAY advertise additional, profile-defined
- *   tokens, and clients MUST ignore tokens they do not recognize.
  */
 export interface BackendDescriptor {
   id: string
   name?: string
   managedBy?: 'server' | 'external'
   persistence?: 'durable' | 'volatile'
-  features?: string[]
   /**
    * The provider adapter id of a registered `external` backend (e.g.
    * `google-drive`); selects the code that operates the connection. Absent on
@@ -724,7 +707,6 @@ export interface BackendRegistration {
   name?: string
   managedBy?: 'external'
   provider: string
-  features?: string[]
   connection: BackendConnectionInput
 }
 
@@ -845,10 +827,10 @@ export interface ServiceDescriptionVersionEntry {
  *
  * - `spaces` -- the Spaces Repository URL. Absent when the server does not
  *   implement it.
- * - `features` -- tokens naming the optional sections the server implements.
- *   Same contract as {@link BackendDescriptor} `features`: the vocabulary is
- *   open, a client ignores tokens it does not recognize, and an absent token
- *   means "not supported". A token a Backend advertises is not repeated here.
+ * - `features` -- tokens naming the optional sections the server implements,
+ *   such as `changes-query`. The vocabulary is open and additive: a client
+ *   ignores tokens it does not recognize, and an absent token means the server
+ *   does not support that section.
  * - `signatureAlgorithms` -- the JSON Web Algorithms identifiers accepted on
  *   capability invocations (`EdDSA` for Ed25519).
  * - `zcapCryptosuites` -- the cryptosuites accepted on capability delegation

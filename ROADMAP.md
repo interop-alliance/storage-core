@@ -1,6 +1,6 @@
 # storage-core Roadmap (open items)
 
-nextAvailableId: 6
+nextAvailableId: 8
 
 Status as of 2026-09-11. Uses the formalized item structure shared with the
 freewallet and was-teaching-server roadmaps (canonical in
@@ -27,4 +27,47 @@ once shipped.
 
 ---
 
-_No open items._
+### SC-7: Move the two signature members off `PwsVersionEntry` onto an authorization-profile entry type
+
+- status: todo
+- priority: high
+- labels: service-description, authorization, wire-contract, breaking
+- touches:
+  - wallet-attached-storage-spec: WASS-44. SHIPPED (2026-09-16): the zCap
+    profile is the companion spec `PWS-AUTHZ`
+    (`https://w3c-ccg.github.io/wallet-attached-storage-spec/authz-profile/`)
+    with persistent identifier `https://w3id.org/pws/authz-profile` and version
+    `0.1`. Its version entry, not core's, carries `signatureAlgorithms` and
+    `zcapCryptosuites` (decision 0008 in that repo). Core's entry keeps `spaces`
+    and `features`
+  - was-teaching-server: WAS-112 lists the profile entry and moves the two
+    members; consumes this item's published version
+  - was-client: WCL-107 checks for the profile entry and reads the members from
+    it; consumes this item's published version
+  - was-conformance-suite: its "Authorization profile extraction" roadmap
+    section carries the service-description checks; it types the entries locally
+    today (`src/suites/service-description-api.ts:165-166`) and can switch to
+    these types when it schedules that work
+- acceptance:
+  - [ ] `PwsVersionEntry` (`src/was.ts`) loses `signatureAlgorithms` and
+        `zcapCryptosuites`, and its doc comment loses the two bullets
+  - [ ] A new `AuthzProfileVersionEntry extends ServiceDescriptionVersionEntry`
+        carries both members as optional string arrays, with a doc comment
+        citing the profile's Service Description Entry section
+        (`https://w3c-ccg.github.io/wallet-attached-storage-spec/authz-profile/#service-description-entry`)
+        and noting that the entry advertises no policy types
+  - [ ] The `ServiceDescriptionVersionEntry` doc comment's "The WAS entry is
+        PwsVersionEntry" sentence names both entry types
+  - [ ] `test/node/serviceDescription.test.ts` (around lines 4-28) exercises the
+        new type and no longer places the two members on a `PwsVersionEntry`
+  - [ ] Exported from the package's export map alongside `PwsVersionEntry`
+  - [ ] CHANGELOG entry marks the removal from `PwsVersionEntry` as breaking;
+        publishes before WAS-112 and WCL-107 (publish in dependency order, per
+        LEARNINGS.md)
+
+Filed 2026-09-16 from WASS-44. A pure type move: the members' shapes and values
+do not change, only which `specs` entry a server puts them on and a client reads
+them from. On the identifier constant: no spec-identifier constant lives in this
+package today (was-client and was-teaching-server each carry their own
+`https://w3id.org/pws` string), so this item adds no constant either; the
+identifier string stays with the consumers unless they ask for a shared one.

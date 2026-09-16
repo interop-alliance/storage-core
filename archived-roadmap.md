@@ -151,6 +151,39 @@ spec marks it provisional.
 2026-09-13: published as 0.15.0; archived. The server's consumption rides
 WAS-98, and the spec text rides its `service-description` branch.
 
+### SC-6: Remove `features` from the Backend wire types
+
+- status: done (2026-09-16)
+- priority: high
+- labels: wire-contract, backends, spec-alignment, breaking
+- touches:
+  - storage-core: `src/was.ts` (`BackendDescriptor`, `BackendRegistration`,
+    `PwsVersionEntry` doc comments), CHANGELOG.md
+- acceptance:
+  - [x] `BackendDescriptor.features` and `BackendRegistration.features` are
+        removed, and the `features` doc comment listing `conditional-writes`,
+        `blinded-index-query`, and `chunked-streams` goes with them
+  - [x] The `PwsVersionEntry.features` doc comment no longer says "same contract
+        as `BackendDescriptor` `features`" or that a Backend token is not
+        repeated there; it states the contract on its own (open, additive,
+        absent means not supported) and notes that `changes-query` is one of its
+        tokens
+  - [x] A CHANGELOG.md entry records the breaking removal
+  - [x] `touches:` entries resolved
+
+Context (2026-09-16): the WAS spec removed the Backend `features` array
+(WASS-40). Conditional writes and key-epoch stamping are baseline server
+requirements, `changes-query` is a service-description token, and
+`blinded-index-query` and `governed-history-logs` are tokens of the WAS-EC
+version entry. The shared wire types here still carry `features` on both Backend
+shapes and document the retired tokens, so was-client and the server cannot drop
+their gates without this change landing first. Publish in dependency order:
+storage-core, then was-client and was-teaching-server.
+
+2026-09-16: the type removal and CHANGELOG entry landed; archived. Rides the
+0.17.0 release, after which was-client and was-teaching-server can drop their
+gates.
+
 ## Errors
 
 ### SC-2: Problem type for an already-revoked revocation submission

@@ -1,5 +1,16 @@
 # @interop/storage-core Changelog
 
+## 0.17.0 - TBD
+
+### Removed
+
+- The `features` member of `BackendDescriptor` and `BackendRegistration`, and
+  its documented token vocabulary (`conditional-writes`, `blinded-index-query`,
+  `chunked-streams`). Conditional writes are a baseline server requirement, and
+  the remaining tokens belong to the service description or the encrypted
+  collections version entry. The spec dropped the Backend array in the same
+  change.
+
 ## 0.16.0 - 2026-09-16
 
 ### Removed
