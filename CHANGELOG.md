@@ -1,6 +1,6 @@
 # @interop/storage-core Changelog
 
-## 0.17.0 - TBD
+## 0.17.0 - 2026-09-16
 
 ### Added
 
