@@ -1,5 +1,14 @@
 # @interop/storage-core Changelog
 
+## 0.16.0 - TBD
+
+### Removed
+
+- The `storageMode` member of `BackendDescriptor` and `BackendRegistration`. Any
+  backend that stores bytes stores both JSON and blobs, so the advisory
+  `document` / `blob` modality carried no decision a client would make. The spec
+  dropped the property in the same change.
+
 ## 0.15.0 - 2026-09-13
 
 ### Added

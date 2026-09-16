@@ -636,8 +636,6 @@ export interface ResourceMetadata {
  * - `managedBy` -- who operates the backend: `server` (configured server-side)
  *   or `external` (a Bring Your Own Storage provider registered by the client).
  *   Spec default: `server`.
- * - `storageMode` -- which representations the backend can store: `document`
- *   (structured JSON) and/or `blob` (opaque binary). Spec default: both.
  * - `persistence` -- whether the storage engine keeps data on persistent media
  *   that survives a restart (`durable`) or only in memory (`volatile`). Spec
  *   default: `durable`.
@@ -662,7 +660,6 @@ export interface BackendDescriptor {
   id: string
   name?: string
   managedBy?: 'server' | 'external'
-  storageMode?: Array<'document' | 'blob'>
   persistence?: 'durable' | 'volatile'
   features?: string[]
   /**
@@ -727,7 +724,6 @@ export interface BackendRegistration {
   name?: string
   managedBy?: 'external'
   provider: string
-  storageMode?: Array<'document' | 'blob'>
   features?: string[]
   connection: BackendConnectionInput
 }
