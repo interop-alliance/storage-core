@@ -2,7 +2,17 @@
 
 ## 0.17.0 - TBD
 
+### Added
+
+- `AuthzProfileVersionEntry`, the version entry of the zCap authorization
+  profile (`https://w3id.org/pws/authz-profile`), carrying `signatureAlgorithms`
+  and `zcapCryptosuites`.
+
 ### Removed
+
+- **BREAKING**: the `signatureAlgorithms` and `zcapCryptosuites` members of
+  `PwsVersionEntry`. They move to `AuthzProfileVersionEntry`, under the
+  profile's own `specs` key. Their shapes and values do not change.
 
 - The `features` member of `BackendDescriptor` and `BackendRegistration`, and
   its documented token vocabulary (`conditional-writes`, `blinded-index-query`,

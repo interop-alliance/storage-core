@@ -809,7 +809,8 @@ export interface ServiceDescription {
  * (spec "version entry"). Only `version` and `url` are common to every entry.
  * The owning specification defines the rest, so the entry stays open to
  * members this type does not name. The WAS entry is
- * {@link PwsVersionEntry}.
+ * {@link PwsVersionEntry}, and the zCap authorization profile's entry is
+ * {@link AuthzProfileVersionEntry}.
  *
  * - `version` -- the bare `major.minor` version, such as `"0.5"`. A client
  *   ignores an entry without one.
@@ -831,14 +832,24 @@ export interface ServiceDescriptionVersionEntry {
  *   such as `changes-query`. The vocabulary is open and additive: a client
  *   ignores tokens it does not recognize, and an absent token means the server
  *   does not support that section.
+ */
+export interface PwsVersionEntry extends ServiceDescriptionVersionEntry {
+  spaces?: string
+  features?: string[]
+}
+
+/**
+ * The zCap authorization profile's version entry in a
+ * {@link ServiceDescription} (profile "Service Description Entry",
+ * https://w3c-ccg.github.io/wallet-attached-storage-spec/authz-profile/#service-description-entry).
+ * The entry advertises no policy types.
+ *
  * - `signatureAlgorithms` -- the JSON Web Algorithms identifiers accepted on
  *   capability invocations (`EdDSA` for Ed25519).
  * - `zcapCryptosuites` -- the cryptosuites accepted on capability delegation
  *   proofs, such as `eddsa-jcs-2022`.
  */
-export interface PwsVersionEntry extends ServiceDescriptionVersionEntry {
-  spaces?: string
-  features?: string[]
+export interface AuthzProfileVersionEntry extends ServiceDescriptionVersionEntry {
   signatureAlgorithms?: string[]
   zcapCryptosuites?: string[]
 }
