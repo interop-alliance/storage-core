@@ -1,5 +1,14 @@
 # @interop/storage-core Changelog
 
+## 0.18.0 - TBD
+
+### Changed
+
+- **BREAKING**: the base identifier of every `ProblemTypes` value and of the
+  documented link relations is now `https://w3id.org/pws`, replacing
+  `https://wallet.storage/spec`. The fragment of each identifier is unchanged,
+  so `not-found` becomes `https://w3id.org/pws#not-found`.
+
 ## 0.17.0 - 2026-09-16
 
 ### Added

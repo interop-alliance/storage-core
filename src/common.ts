@@ -25,7 +25,7 @@ export type Action = 'GET' | 'PUT' | 'POST' | 'DELETE'
  */
 export type ActionInput = Action | Lowercase<Action>
 
-const SPEC_URL = 'https://wallet.storage/spec'
+const SPEC_URL = 'https://w3id.org/pws'
 
 /**
  * Catalog of `type` URIs emitted in `application/problem+json` error responses.
@@ -308,7 +308,7 @@ export interface StorageLimit {
 
 /**
  * One member of a {@link LinkSet} (RFC9264): an `anchor` plus relation keys
- * (e.g. `https://wallet.storage/spec#policy`) mapping to arrays of link
+ * (e.g. `https://w3id.org/pws#policy`) mapping to arrays of link
  * targets.
  */
 export interface LinkSetEntry {

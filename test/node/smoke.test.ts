@@ -8,9 +8,9 @@ import {
 
 describe('@interop/storage-core', () => {
   it('exposes problem-type URIs anchored into the spec', () => {
-    expect(ProblemTypes.NOT_FOUND).toBe('https://wallet.storage/spec#not-found')
+    expect(ProblemTypes.NOT_FOUND).toBe('https://w3id.org/pws#not-found')
     expect(ProblemTypes.QUOTA_EXCEEDED).toBe(
-      'https://wallet.storage/spec#quota-exceeded'
+      'https://w3id.org/pws#quota-exceeded'
     )
   })
 
