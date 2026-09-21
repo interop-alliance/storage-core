@@ -1,6 +1,6 @@
 # storage-core Roadmap (open items)
 
-nextAvailableId: 8
+nextAvailableId: 9
 
 Status as of 2026-09-11. Uses the formalized item structure shared with the
 freewallet and was-teaching-server roadmaps (canonical in

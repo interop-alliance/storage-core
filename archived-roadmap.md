@@ -292,3 +292,26 @@ from an expired one or from a verification failure.
 
 2026-09-09: the registry half landed. 2026-09-10: published as 0.13.0 and the
 `touches` entries shipped; archived.
+
+### SC-8: Space Metadata `backends` and the import's `spaceMetadata` outcome
+
+- status: done (2026-09-20)
+- priority: medium
+- labels: types, spaces, import
+- discovered-from: freewallet FW-530
+- touches:
+  - was-teaching-server: serves `backends` on every Space Metadata read and in
+    the export archive's `.space.<id>.json` entry, and reports `spaceMetadata`
+    from Import Space
+  - wallet-attached-storage-spec: the Space Metadata Data Model's `backends`
+    member and the import bullet's restore rule (landed 2026-09-20)
+- acceptance:
+  - [x] `SpaceMetadata` gains the read-only `backends?: BackendDescriptor[]`
+  - [x] `ImportStats` gains `spaceMetadata: 'restored' | 'skipped' | 'absent'`
+  - [x] CHANGELOG entry
+
+The backend description moves onto the Space Metadata object as a server-derived
+member, so a client learns a Space's backends from the object it already reads.
+Import restores the archived object's user-writable members (`type` and `name`)
+only under an invocation of the Space's root capability, and reports which of
+the three outcomes it took.

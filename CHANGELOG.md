@@ -1,5 +1,18 @@
 # @interop/storage-core Changelog
 
+## 0.19.0 - TBD
+
+### Added
+
+- `SpaceMetadata.backends`, the server-derived listing of the backends a Space
+  serves (the same array `GET /space/{space_id}/backends` returns), carried on
+  the Space Metadata object so a reader learns it without a second request.
+  Read-only, on the same terms as `createdBy`.
+- `ImportStats.spaceMetadata`, reporting what an import did with the archived
+  Space Metadata object's user-writable members: `'restored'`, `'skipped'` (the
+  invoker held a delegated chain), or `'absent'` (the archive carried no Space
+  Metadata entry).
+
 ## 0.18.0 - 2026-09-16
 
 ### Changed

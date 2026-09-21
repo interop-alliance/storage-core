@@ -57,6 +57,15 @@ export interface SpaceMetadata {
    * time, not persisted.
    */
   linkset?: string
+  /**
+   * The backends the Space serves, the same listing
+   * `GET /space/{space_id}/backends` returns, carried here so a reader learns
+   * it without a second request. Server-derived and read-only: a value
+   * supplied in a write body is ignored, on the same terms as `createdBy`.
+   * OPTIONAL (spec "Space Metadata Data Model"): a server without pluggable
+   * backends omits it.
+   */
+  backends?: BackendDescriptor[]
 }
 
 /**
@@ -773,6 +782,15 @@ export interface ImportStats {
   resourcesSkipped: number
   policiesCreated: number
   policiesSkipped: number
+  /**
+   * What the import did with the archived Space Metadata object's
+   * user-writable members (`type` and `name`): `'restored'` when they were
+   * applied, which takes an invocation of the Space's root capability;
+   * `'skipped'` when the invoker held a delegated chain, so they were not
+   * applied; `'absent'` when the archive carried no Space Metadata entry.
+   * Server-derived members and `controller` are never restored.
+   */
+  spaceMetadata: 'restored' | 'skipped' | 'absent'
 }
 
 /**
