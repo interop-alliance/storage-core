@@ -1,5 +1,15 @@
 # @interop/storage-core Changelog
 
+## 0.20.0 - TBD
+
+### Changed
+
+- **BREAKING**: `CollectionMetadata.generator` is now a `CollectionGenerator`
+  object `{ id, origin?, url?, name? }`, replacing the DID string. The flat
+  `generatorOrigin` member is removed; the origin is now `generator.origin`.
+  `generator.url` carries the application's canonical URL and
+  `generator.name` its display label.
+
 ## 0.19.1 - 2026-09-25
 
 ### Changed
