@@ -8,5 +8,6 @@
  * as `./edv` without changing this surface.
  */
 export * from './common.js'
+export * from './contentType.js'
 export * from './resourceLog.js'
 export * from './was.js'

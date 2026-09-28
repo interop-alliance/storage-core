@@ -32,15 +32,18 @@ live here too. The source is organized by domain to leave room for that:
   the RFC9457 problem-type registry + `application/problem+json` body shapes +
   canonical code-to-status map, the storage-limit shape, the RFC9264 linkset
   shapes, and the reserved path-segment registry.
+- `src/contentType.ts` -- `isJsonContentType`, the rule the server and client
+  share for whether a Resource body is JSON.
 - `src/was.ts` -- the WAS data model: the Space / Collection Metadata objects,
   Resource summaries, listing shapes, resource metadata, backend descriptor /
   usage, the quota report, and the policy document.
 - `src/edv.ts` -- (later) the EDV data model.
 
 The package is **pure types plus a few `const` values** (`ProblemTypes`,
-`ProblemStatusCodes`, the reserved-segment sets); it has no platform APIs and no
-runtime dependency surface beyond a type-only reference to
-`@interop/data-integrity-core` (`IDID`), which it uses but does not re-export.
+`ProblemStatusCodes`, the reserved-segment sets) and one pure function
+(`isJsonContentType`); it has no platform APIs and no runtime dependency surface
+beyond a type-only reference to `@interop/data-integrity-core` (`IDID`), which
+it uses but does not re-export.
 
 ## Install
 

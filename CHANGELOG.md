@@ -1,5 +1,13 @@
 # @interop/storage-core Changelog
 
+## 0.21.0 - TBD
+
+### Added
+
+- `isJsonContentType(contentType)`, the rule the WAS server and client share for
+  whether a body is JSON: `application/json` or an `application/<prefix>+json`
+  type, with optional parameters.
+
 ## 0.20.0 - 2026-09-27
 
 ### Changed
@@ -7,8 +15,8 @@
 - **BREAKING**: `CollectionMetadata.generator` is now a `CollectionGenerator`
   object `{ id, origin?, url?, name? }`, replacing the DID string. The flat
   `generatorOrigin` member is removed; the origin is now `generator.origin`.
-  `generator.url` carries the application's canonical URL and
-  `generator.name` its display label.
+  `generator.url` carries the application's canonical URL and `generator.name`
+  its display label.
 
 ## 0.19.1 - 2026-09-25
 
