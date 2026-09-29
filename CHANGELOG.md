@@ -1,5 +1,14 @@
 # @interop/storage-core Changelog
 
+## 0.22.0 - TBD
+
+### Added
+
+- `writerId?: string` on `ResourceMetadata`, `ResourceSummary`, and
+  `ChangeDocument`: the WAS spec's optional writer-attribution label. Opaque,
+  non-empty, client-declared; advisory and never server-verified or used for
+  authorization; declare-or-clear on a metadata write.
+
 ## 0.21.0 - 2026-09-28
 
 ### Added

@@ -472,6 +472,13 @@ export interface ResourceSummary {
    * a reader can pick the right epoch key without a `/meta` fetch per item.
    */
   epoch?: string
+  /**
+   * The Resource's writer-attribution label, when the writer declared one
+   * (see {@link ResourceMetadata.writerId}). Surfaced in listings so a reader
+   * recognizes its own writes without a `/meta` fetch per item. Advisory and
+   * never server-verified, on the same terms as everywhere else it appears.
+   */
+  writerId?: string
 }
 
 /**
@@ -548,6 +555,16 @@ export interface ChangeDocument {
    * and emits no feed entry).
    */
   epoch?: string
+  /**
+   * The Resource's writer-attribution label, when the writer declared one
+   * (see {@link ResourceMetadata.writerId}). Rides the feed so a replica
+   * recognizes its own writes echoed back -- on an encrypted Collection,
+   * without decrypting -- and breaks same-`updatedAt` last-writer-wins ties
+   * on a shared `(updatedAt, writerId)` key. A tombstone carries the label
+   * the deleting request declared, if any, since a deletion is itself a
+   * revision. Advisory and never server-verified.
+   */
+  writerId?: string
   /** the stored JSON body, or its encryption envelope; absent on a tombstone */
   data?: unknown
   /**
@@ -654,6 +671,21 @@ export interface ResourceMetadata {
    * it would be lost.
    */
   epoch?: string
+  /**
+   * An opaque, non-empty label naming the writing agent that produced the
+   * Resource's current revision (spec "Writer attribution"). Client-declared
+   * via the `Writer-Id` header on a content write or delete, or this
+   * top-level member on an Update Resource Metadata request; the server
+   * stores it verbatim and MUST NOT verify it, compute it, or use it as an
+   * authorization input. Advisory replication metadata only -- it lets a
+   * replica recognize its own writes echoed back and break same-timestamp
+   * last-writer-wins ties on a shared `(updatedAt, writerId)` key. Unlike
+   * `epoch`, which a metadata write omitting it preserves, `writerId` is
+   * declare-or-clear: an omitted value clears the stored one, since
+   * attribution to a bygone writer is worse than none. Deliberately a
+   * sibling of `custom`, not inside it, on the same terms as `epoch`.
+   */
+  writerId?: string
   /** user-writable properties (omitted when none are set) */
   custom?: ResourceMetadataCustom
 }
