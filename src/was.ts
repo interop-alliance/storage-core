@@ -908,10 +908,18 @@ export interface ServiceDescriptionVersionEntry {
  *   such as `changes-query`. The vocabulary is open and additive: a client
  *   ignores tokens it does not recognize, and an absent token means the server
  *   does not support that section.
+ * - `exportSigningKey` -- the `did:key` of the key the server signs export
+ *   archives with. Absent when the server has no signing key.
+ * - `did` -- the server's own DID, a self-hosted `did:webvh` whose document
+ *   lists `exportSigningKey` under `assertionMethod`. Present only once that
+ *   document resolves and lists the key that way, so a server may carry
+ *   `exportSigningKey` without `did`.
  */
 export interface PwsVersionEntry extends ServiceDescriptionVersionEntry {
   spaces?: string
   features?: string[]
+  exportSigningKey?: string
+  did?: string
 }
 
 /**
