@@ -1,11 +1,11 @@
 # @interop/storage-core Changelog
 
-## 0.23.0 - 2026-09-29
+## 0.23.1 - TBD
 
 ### Added
 
-- `exportSigningKey?: string` and `did?: string` on `PwsVersionEntry`: the
-  server identity members of the WAS service description's core entry (the
+- `exportSigningKey?: string` and `serverDid?: string` on
+  `ServiceDescription.instance`: the instance's identity members (the
   export-signing key as a `did:key`, and the server's `did:webvh` once its
   document lists that key under `assertionMethod`).
 

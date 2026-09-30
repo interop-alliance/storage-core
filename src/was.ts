@@ -864,8 +864,14 @@ export interface ImportStats {
  *   {@link ServiceDescriptionVersionEntry} per version the server implements.
  *   A client ignores keys it does not know and picks the highest version it
  *   understands under the keys it does.
- * - `instance` -- the operator's optional disclosure of the deployed software.
- *   A client must not gate any behavior on it.
+ * - `instance` -- the operator's optional disclosure of the deployed software
+ *   and of this instance's own identity. A client must not gate any protocol
+ *   behavior on it. `exportSigningKey` is the `did:key` of the key the
+ *   instance signs export archives with, absent when it has none; `serverDid`
+ *   is the instance's own DID, a self-hosted `did:webvh` whose document lists
+ *   `exportSigningKey` under `assertionMethod`, present only once that
+ *   document resolves and lists the key that way, so an instance may carry
+ *   `exportSigningKey` without `serverDid`.
  *
  * Every URL in the document is absolute.
  */
@@ -877,6 +883,8 @@ export interface ServiceDescription {
     version?: string
     source?: string
     homepage?: string
+    exportSigningKey?: string
+    serverDid?: string
   }
 }
 
@@ -908,18 +916,10 @@ export interface ServiceDescriptionVersionEntry {
  *   such as `changes-query`. The vocabulary is open and additive: a client
  *   ignores tokens it does not recognize, and an absent token means the server
  *   does not support that section.
- * - `exportSigningKey` -- the `did:key` of the key the server signs export
- *   archives with. Absent when the server has no signing key.
- * - `did` -- the server's own DID, a self-hosted `did:webvh` whose document
- *   lists `exportSigningKey` under `assertionMethod`. Present only once that
- *   document resolves and lists the key that way, so a server may carry
- *   `exportSigningKey` without `did`.
  */
 export interface PwsVersionEntry extends ServiceDescriptionVersionEntry {
   spaces?: string
   features?: string[]
-  exportSigningKey?: string
-  did?: string
 }
 
 /**
