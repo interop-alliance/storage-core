@@ -1,5 +1,13 @@
 # @interop/storage-core Changelog
 
+## 0.24.0 - TBD
+
+### Added
+
+- `provenance` on `ImportStats`: per-verdict counts (`verified`, `unattested`,
+  `proofInvalid`, `contentMismatch`, `unknownSigner`) of the objects an import
+  judged against the archive's provenance statements.
+
 ## 0.23.1 - 2026-09-29
 
 ### Added

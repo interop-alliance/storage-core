@@ -849,6 +849,29 @@ export interface ImportStats {
    * Server-derived members and `controller` are never restored.
    */
   spaceMetadata: 'restored' | 'skipped' | 'absent'
+  /**
+   * How the archive's provenance statements judged each object the archive
+   * carries: the Space Metadata object, each Collection Metadata object, and
+   * each Resource with a representation. Each object lands in one bucket. A
+   * tombstone is not counted. An object outside `verified` is still imported,
+   * with its `createdBy` dropped.
+   *
+   * - `verified` -- its statement's signer resolves at the named log version,
+   *   the proof verifies, and the statement matches the archived bytes.
+   * - `unattested` -- the archive carries no statement for it.
+   * - `proofInvalid` -- the signer resolves but the proof does not verify.
+   * - `contentMismatch` -- the proof verifies but the statement does not
+   *   match the archived bytes.
+   * - `unknownSigner` -- the signer cannot be established from the archive's
+   *   DID history log.
+   */
+  provenance: {
+    verified: number
+    unattested: number
+    proofInvalid: number
+    contentMismatch: number
+    unknownSigner: number
+  }
 }
 
 /**
