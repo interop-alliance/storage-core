@@ -1,5 +1,12 @@
 # @interop/storage-core Changelog
 
+## 0.25.0 - TBD
+
+### Changed
+
+- `SpaceSummary` (a List Spaces item) carries a required `type: string[]`, the
+  Space's `type` array from its Space Metadata object.
+
 ## 0.24.0 - 2026-09-30
 
 ### Added

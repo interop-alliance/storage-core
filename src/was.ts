@@ -384,6 +384,12 @@ export interface SpaceSummary {
    * the canonical form carries a trailing slash.
    */
   url: string
+  /**
+   * The Space's `type` array, as its Space Metadata object carries it. Lets a
+   * client tell an auxiliary Space (one typed `AuxiliarySpace`) from a data
+   * Space without reading each Space's Metadata object.
+   */
+  type: string[]
 }
 
 /**
