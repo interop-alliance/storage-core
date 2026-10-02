@@ -1,5 +1,15 @@
 # @interop/storage-core Changelog
 
+## 0.26.0 - TBD
+
+### Changed
+
+- `ChangesCheckpoint` is an opaque string, scoped to the issuing server and
+  Collection, compared by equality only and echoed back verbatim. It replaces
+  the `{ id, updatedAt }` object.
+- `ChangeDocument` carries a required `checkpoint`, the checkpoint that resumes
+  the feed right after that document. `updatedAt` has no ordering role.
+
 ## 0.25.0 - 2026-10-01
 
 ### Changed

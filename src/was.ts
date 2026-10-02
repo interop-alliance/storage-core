@@ -488,15 +488,13 @@ export interface ResourceSummary {
 }
 
 /**
- * The keyset position of a `changes` feed page (spec "Query Profile Registry",
- * the `changes` profile): the `(updatedAt, id)` pair of the last document
- * returned. Passed back to resume strictly after it. Opaque to a client --
- * a position token, not a timestamp to do arithmetic on.
+ * A resume position in a `changes` feed (spec "Query Profile Registry", the
+ * `changes` profile). Opaque: a client stores it, compares it by equality
+ * only, and echoes it back verbatim to resume strictly after the document it
+ * was issued for. It is scoped to the server and Collection that issued it;
+ * any other server, or any other Collection, refuses it.
  */
-export interface ChangesCheckpoint {
-  id: string
-  updatedAt: string
-}
+export type ChangesCheckpoint = string
 
 /**
  * One document of the `changes` query profile's replication feed. A tombstone
@@ -522,8 +520,17 @@ export interface ChangeDocument {
   id: string
   /** `true` on a tombstone */
   _deleted: boolean
-  /** RFC3339 date-time of the change; half of the checkpoint keyset */
+  /**
+   * RFC3339 date-time of the change. A plain wall-clock stamp: it has no
+   * ordering role in the feed, which is ordered by the issuing server's feed
+   * position.
+   */
   updatedAt: string
+  /**
+   * the checkpoint that resumes the feed right after this document, so a
+   * client can checkpoint on any prefix of a page
+   */
+  checkpoint: ChangesCheckpoint
   /**
    * the Resource's monotonic content version, for ordering and comparison.
    * Not an `If-Match` value on its own: the server's `ETag` is an opaque
