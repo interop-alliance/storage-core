@@ -1,5 +1,13 @@
 # @interop/storage-core Changelog
 
+## 0.29.0 - TBD
+
+### Added
+
+- `isWriteStamp` and `isMetaStamp`, the guards for a whole `WriteStamp` and
+  `ResourceMetaStamp` read off the wire. A partial stamp is treated as none;
+  `originId` must match `[A-Za-z0-9_-]{1,64}`.
+
 ## 0.28.0 - 2026-10-03
 
 ### Added

@@ -37,13 +37,15 @@ live here too. The source is organized by domain to leave room for that:
 - `src/was.ts` -- the WAS data model: the Space / Collection Metadata objects,
   Resource summaries, listing shapes, resource metadata, backend descriptor /
   usage, the quota report, and the policy document.
+- `src/writeStamp.ts` -- `isWriteStamp` and `isMetaStamp`, the rule the server
+  and client share for whether a served object carries a whole write stamp.
 - `src/edv.ts` -- (later) the EDV data model.
 
 The package is **pure types plus a few `const` values** (`ProblemTypes`,
-`ProblemStatusCodes`, the reserved-segment sets) and one pure function
-(`isJsonContentType`); it has no platform APIs and no runtime dependency surface
-beyond a type-only reference to `@interop/data-integrity-core` (`IDID`), which
-it uses but does not re-export.
+`ProblemStatusCodes`, the reserved-segment sets) and a few pure functions
+(`isJsonContentType`, `isWriteStamp`, `isMetaStamp`); it has no platform APIs
+and no runtime dependency surface beyond a type-only reference to
+`@interop/data-integrity-core` (`IDID`), which it uses but does not re-export.
 
 ## Install
 
