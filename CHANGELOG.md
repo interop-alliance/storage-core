@@ -1,5 +1,12 @@
 # @interop/storage-core Changelog
 
+## 0.27.0 - TBD
+
+### Added
+
+- `originId?: string` on `PwsVersionEntry`: the store's origin id, read by a
+  replication peer at registration.
+
 ## 0.26.0 - 2026-10-01
 
 ### Changed

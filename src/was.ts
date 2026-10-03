@@ -952,10 +952,14 @@ export interface ServiceDescriptionVersionEntry {
  *   such as `changes-query`. The vocabulary is open and additive: a client
  *   ignores tokens it does not recognize, and an absent token means the server
  *   does not support that section.
+ * - `originId` -- the store's origin id, which a replication peer reads when it
+ *   registers. It sits on this entry rather than on `instance` because a client
+ *   may gate on it, and the spec forbids gating on `instance`.
  */
 export interface PwsVersionEntry extends ServiceDescriptionVersionEntry {
   spaces?: string
   features?: string[]
+  originId?: string
 }
 
 /**
