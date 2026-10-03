@@ -1,5 +1,24 @@
 # @interop/storage-core Changelog
 
+## 0.28.0 - TBD
+
+### Added
+
+- `WriteStamp` (`updatedAt`, `updatedAtCounter`, `originId`), the hybrid logical
+  clock stamp every versioned record carries, and `ResourceMetaStamp`, the stamp
+  of a Resource's `/meta` record with its `generation`.
+- `updatedAtCounter` and `originId` on `ResourceMetadata`, `CollectionMetadata`
+  and `SpaceMetadata`, plus `updatedAt` on `SpaceMetadata`. All optional.
+- `meta?: ResourceMetaStamp` on `ResourceMetadata` and `ChangeDocument`.
+
+### Changed
+
+- **BREAKING**: `ChangeDocument` carries required `updatedAtCounter` and
+  `originId` beside `updatedAt`. Its `version` and `metaVersion` members are
+  removed. The nested `meta` stamp replaces `metaVersion`.
+- `writerId` is documented as outside the stamp order and as a content-record
+  member that a metadata write leaves untouched.
+
 ## 0.27.0 - 2026-10-02
 
 ### Added

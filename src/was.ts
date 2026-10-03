@@ -23,6 +23,49 @@ import type { IDID } from '@interop/data-integrity-core'
 import type { Action, StorageLimit } from './common.js'
 
 /**
+ * The write stamp every versioned record carries: a hybrid logical clock
+ * reading plus the id of the store that minted it. It is minted by the origin
+ * server inside the write's critical section and stored verbatim by every
+ * replica. Two stamps are ordered by `(ms, updatedAtCounter, originId)`, where
+ * `ms` is the epoch millisecond value of `updatedAt`. The first two compare
+ * numerically and the last as a plain string. `writerId` is not part of the
+ * order.
+ */
+export interface WriteStamp {
+  /**
+   * RFC3339 date-time of the write, the physical part of the origin's hybrid
+   * logical clock
+   */
+  updatedAt: string
+  /**
+   * The clock's logical part, a non-negative integer. It ticks when a write
+   * lands in the same millisecond as the one before it, and restarts at `0`
+   * when the millisecond advances.
+   */
+  updatedAtCounter: number
+  /**
+   * The id of the store that minted the stamp, matching
+   * `[A-Za-z0-9_-]{1,64}`. The same value the server advertises as
+   * {@link PwsVersionEntry.originId}.
+   */
+  originId: string
+}
+
+/**
+ * The stamp of a Resource's `/meta` record, nested as `meta` on the objects
+ * that describe a Resource. The `/meta` object is a record of its own, so it
+ * carries its own {@link WriteStamp}, beside the `generation` marker of its
+ * validator. The content record's stamp stays at the top level.
+ */
+export interface ResourceMetaStamp extends WriteStamp {
+  /**
+   * the opaque marker minted when the `/meta` record was created and kept for
+   * its life
+   */
+  generation: string
+}
+
+/**
  * A Space Metadata object (spec "Space Metadata Data Model"), addressable at
  * the reserved `meta` segment of a Space (`/space/{space_id}/meta`). It is the
  * Space's description: the properties stored for the Space, served as one
@@ -66,6 +109,16 @@ export interface SpaceMetadata {
    * backends omits it.
    */
   backends?: BackendDescriptor[]
+  /**
+   * RFC3339 date-time this Metadata object was last written. With
+   * `updatedAtCounter` and `originId` it is the object's {@link WriteStamp}.
+   * Server-managed: a value supplied in a write body is ignored.
+   */
+  updatedAt?: string
+  /** the stamp's logical counter; see {@link WriteStamp.updatedAtCounter} */
+  updatedAtCounter?: number
+  /** the store that minted the stamp; see {@link WriteStamp.originId} */
+  originId?: string
 }
 
 /**
@@ -250,10 +303,10 @@ export interface CollectionGenerator {
  * {@link ResourceMetadata}: those describe a stored representation, and a
  * Collection has none -- it is a container, not a document.
  *
- * One validator covers the whole object. The server-managed `metaVersion`,
- * surfaced as a strong `ETag` on read, advances on configuration and annotation
- * writes alike, so a write to `backend` and a write to `custom` bump the same
- * counter. A client holds one ETag for the Collection, not one per surface.
+ * One validator covers the whole object. Its strong `ETag` moves on
+ * configuration and annotation writes alike, so a write to `backend` and a
+ * write to `custom` change the same validator. A client holds one ETag for the
+ * Collection, not one per surface.
  * Because this object exists exactly as long as its Collection does,
  * `If-None-Match: *` means "create only if the Collection does not exist".
  */
@@ -338,8 +391,15 @@ export interface CollectionMetadata {
   linkset?: string
   /** RFC3339 date-time the Collection was created */
   createdAt?: string
-  /** RFC3339 date-time this Metadata object was last modified */
+  /**
+   * RFC3339 date-time this Metadata object was last modified. With
+   * `updatedAtCounter` and `originId` it is the object's {@link WriteStamp}.
+   */
   updatedAt?: string
+  /** the stamp's logical counter; see {@link WriteStamp.updatedAtCounter} */
+  updatedAtCounter?: number
+  /** the store that minted the stamp; see {@link WriteStamp.originId} */
+  originId?: string
   /**
    * The key-epoch id the `custom` envelope was encrypted under, on an
    * encrypted Collection. Client-declared and stored opaquely, exactly as
@@ -521,23 +581,21 @@ export interface ChangeDocument {
   /** `true` on a tombstone */
   _deleted: boolean
   /**
-   * RFC3339 date-time of the change. A plain wall-clock stamp: it has no
-   * ordering role in the feed, which is ordered by the issuing server's feed
-   * position.
+   * RFC3339 date-time of the change. With `updatedAtCounter` and `originId`
+   * it is the content record's {@link WriteStamp}, which orders two revisions
+   * of one Resource. It has no ordering role in the feed, which is ordered by
+   * the issuing server's feed position.
    */
   updatedAt: string
+  /** the stamp's logical counter; see {@link WriteStamp.updatedAtCounter} */
+  updatedAtCounter: number
+  /** the store that minted the stamp; see {@link WriteStamp.originId} */
+  originId: string
   /**
    * the checkpoint that resumes the feed right after this document, so a
    * client can checkpoint on any prefix of a page
    */
   checkpoint: ChangesCheckpoint
-  /**
-   * the Resource's monotonic content version, for ordering and comparison.
-   * Not an `If-Match` value on its own: the server's `ETag` is an opaque
-   * string that embeds more than this number, so a conditional write echoes
-   * `etag` instead.
-   */
-  version: number
   /**
    * the Resource's current content `ETag`, quoted, exactly as the server
    * emits it in the response header. Echoed verbatim as `If-Match` on a
@@ -545,8 +603,11 @@ export interface ChangeDocument {
    * Resource.
    */
   etag?: string
-  /** the independent `/meta` version, once metadata has been written */
-  metaVersion?: number
+  /**
+   * the `/meta` record's own stamp and generation, once metadata has been
+   * written
+   */
+  meta?: ResourceMetaStamp
   /**
    * the `/meta` object's current `ETag`, quoted, exactly as the server emits
    * it. Echoed verbatim as `If-Match` on a conditional metadata write. Absent
@@ -572,10 +633,9 @@ export interface ChangeDocument {
    * The Resource's writer-attribution label, when the writer declared one
    * (see {@link ResourceMetadata.writerId}). Rides the feed so a replica
    * recognizes its own writes echoed back -- on an encrypted Collection,
-   * without decrypting -- and breaks same-`updatedAt` last-writer-wins ties
-   * on a shared `(updatedAt, writerId)` key. A tombstone carries the label
-   * the deleting request declared, if any, since a deletion is itself a
-   * revision. Advisory and never server-verified.
+   * without decrypting. It is not part of the stamp order. A tombstone carries
+   * the label the deleting request declared, if any, since a deletion is
+   * itself a revision. Advisory and never server-verified.
    */
   writerId?: string
   /** the stored JSON body, or its encryption envelope; absent on a tombstone */
@@ -662,8 +722,21 @@ export interface ResourceMetadata {
   size: number
   /** RFC3339 date-time the Resource was created */
   createdAt?: string
-  /** RFC3339 date-time the Resource's content or custom metadata last changed */
+  /**
+   * RFC3339 date-time the Resource's content last changed. With
+   * `updatedAtCounter` and `originId` it is the content record's
+   * {@link WriteStamp}. A metadata write moves `meta` instead.
+   */
   updatedAt?: string
+  /** the stamp's logical counter; see {@link WriteStamp.updatedAtCounter} */
+  updatedAtCounter?: number
+  /** the store that minted the stamp; see {@link WriteStamp.originId} */
+  originId?: string
+  /**
+   * the `/meta` record's own stamp and generation, once metadata has been
+   * written
+   */
+  meta?: ResourceMetaStamp
   /**
    * DID of the party whose capability invocation created the Resource. Set on
    * the first write and preserved across later writes, so it names the creator
@@ -691,12 +764,10 @@ export interface ResourceMetadata {
    * top-level member on an Update Resource Metadata request; the server
    * stores it verbatim and MUST NOT verify it, compute it, or use it as an
    * authorization input. Advisory replication metadata only -- it lets a
-   * replica recognize its own writes echoed back and break same-timestamp
-   * last-writer-wins ties on a shared `(updatedAt, writerId)` key. Unlike
-   * `epoch`, which a metadata write omitting it preserves, `writerId` is
-   * declare-or-clear: an omitted value clears the stored one, since
-   * attribution to a bygone writer is worse than none. Deliberately a
-   * sibling of `custom`, not inside it, on the same terms as `epoch`.
+   * replica recognize its own writes echoed back. It is not part of the stamp
+   * order. It belongs to the content record, so a metadata write leaves it
+   * untouched. Deliberately a sibling of `custom`, not inside it, on the same
+   * terms as `epoch`.
    */
   writerId?: string
   /** user-writable properties (omitted when none are set) */

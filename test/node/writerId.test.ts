@@ -37,14 +37,18 @@ describe('writerId', () => {
       id: 'hello-world',
       _deleted: false,
       updatedAt: '2026-01-15T12:00:00.000Z',
-      version: 1,
+      updatedAtCounter: 0,
+      originId: '8dGmQyVw3nXtRk2LpZc7Ha',
+      checkpoint: 'opaque-1',
       writerId: 'z6fVXHKn8PdQm2Rt'
     } satisfies ChangeDocument
     const tombstone = {
       id: 'hello-world',
       _deleted: true,
       updatedAt: '2026-01-15T12:00:00.000Z',
-      version: 2,
+      updatedAtCounter: 1,
+      originId: '8dGmQyVw3nXtRk2LpZc7Ha',
+      checkpoint: 'opaque-2',
       writerId: 'z6fVXHKn8PdQm2Rt'
     } satisfies ChangeDocument
     expectTypeOf(entry.writerId).toEqualTypeOf<string | undefined>()
