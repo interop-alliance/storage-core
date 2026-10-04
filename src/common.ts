@@ -90,6 +90,23 @@ export const ProblemTypes = {
   ENCRYPTION_IMMUTABLE: `${SPEC_URL}#encryption-immutable`,
 
   /**
+   * A write to a Collection's Metadata object (or an append to its governing
+   * history log) tried to change, clear, or add the `resolution` or
+   * `immutable` member of the `revisions` descriptor. Both are immutable once
+   * set and are declared only in the write that creates the Collection; the
+   * counterpart of `encryption-immutable`. Typical status 409.
+   */
+  REVISIONS_IMMUTABLE: `${SPEC_URL}#revisions-immutable`,
+
+  /**
+   * A Resource or chunk write into a Collection whose `revisions` descriptor
+   * sets `immutable`, refused because it would change stored bytes: an update
+   * of a live Resource or chunk, or a repeat create whose body digest differs
+   * from the stored one. Typical status 409.
+   */
+  RESOURCE_IMMUTABLE: `${SPEC_URL}#resource-immutable`,
+
+  /**
    * A write to a Collection's Metadata object set the `encryption` member
    * directly on a Collection whose descriptor is governed by its history log
    * (the `.../meta/log` sub-resource). On such a Collection the served member
@@ -276,6 +293,8 @@ export const ProblemStatusCodes: Record<ProblemType, number> = {
   [ProblemTypes.UNSUPPORTED_BACKEND]: 409,
   [ProblemTypes.ENCRYPTION_IMMUTABLE]: 409,
   [ProblemTypes.ENCRYPTION_HISTORY_LOG_GOVERNED]: 409,
+  [ProblemTypes.REVISIONS_IMMUTABLE]: 409,
+  [ProblemTypes.RESOURCE_IMMUTABLE]: 409,
   [ProblemTypes.ENCRYPTION_SCHEME_MISMATCH]: 422,
   [ProblemTypes.UNSUPPORTED_ENCRYPTION_SCHEME]: 400,
   [ProblemTypes.PRECONDITION_FAILED]: 412,

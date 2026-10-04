@@ -235,6 +235,34 @@ export type CollectionEncryption = {
 }
 
 /**
+ * A Collection's `revisions` descriptor: what the server does with concurrent
+ * revisions of the Collection's Resources, and whether those Resources are
+ * write-once. The two axes are independent.
+ *
+ * - `resolution` names the conflict disposition. It is a closed set with one
+ *   value, `last-writer-wins`, which is also the default when the member is
+ *   absent. `keep-conflicts` is reserved and refused. A server refuses an
+ *   unknown value (`invalid-request-body`).
+ * - `immutable` marks a write-once Collection (default `false`). An update of
+ *   a live Resource is refused (`resource-immutable`). A repeat create, or a
+ *   create over a tombstone, with an equal body digest is a no-op answering
+ *   the current `ETag`. One with a different digest is refused. Chunks follow
+ *   the same rule.
+ * - `merge` names the merge discipline the Collection's apps apply. The
+ *   server stores and serves it verbatim and never reads it.
+ *
+ * `resolution` and `immutable` are immutable once set and are declared only
+ * in the write that creates the Collection (`revisions-immutable`). On a
+ * Collection governed by a history log, the descriptor is derived from the
+ * log head's `state.revisions`.
+ */
+export interface CollectionRevisions {
+  resolution?: 'last-writer-wins'
+  immutable?: boolean
+  merge?: Record<string, unknown>
+}
+
+/**
  * One entry of a Collection's `plaintext.indexes` declaration (spec
  * "Collection Data Model"; the `equality` query profile). Names an attribute
  * the server extracts and indexes from stored Resources:
@@ -384,6 +412,12 @@ export interface CollectionMetadata {
    * through the `blinded-index` profile.
    */
   plaintext?: { indexes?: Array<string | CollectionIndexDeclaration> }
+  /**
+   * The Collection's conflict model and write-once flag (see
+   * {@link CollectionRevisions}). OPTIONAL; absent means last-writer-wins and
+   * mutable Resources.
+   */
+  revisions?: CollectionRevisions
   /**
    * URL of the Collection's linkset resource (RFC9264); see
    * `SpaceMetadata.linkset`. Attached at response time, not persisted.

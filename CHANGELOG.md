@@ -1,5 +1,15 @@
 # @interop/storage-core Changelog
 
+## 0.30.0 - TBD
+
+### Added
+
+- `CollectionRevisions` and `revisions?: CollectionRevisions` on
+  `CollectionMetadata`: the conflict `resolution` (`last-writer-wins` only), the
+  write-once `immutable` flag, and a verbatim `merge` object.
+- `ProblemTypes.REVISIONS_IMMUTABLE` (`revisions-immutable`, 409) and
+  `ProblemTypes.RESOURCE_IMMUTABLE` (`resource-immutable`, 409).
+
 ## 0.29.0 - 2026-10-03
 
 ### Added
