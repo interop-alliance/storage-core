@@ -621,10 +621,59 @@ export interface ResourceSummary {
 export type ChangesCheckpoint = string
 
 /**
- * One document of the `changes` query profile's replication feed. A tombstone
- * (a soft-deleted Resource) has `_deleted: true` and no `data`; its
- * server-managed properties still travel, so a delete replicates with its
- * attribution intact. Binary (non-JSON) Resources are excluded from the feed.
+ * The members every document of the `changes` query profile's feed carries,
+ * whatever its `kind`. The stamp members and `generation` are the record's
+ * own, so a puller can decide whether to apply a change from the feed alone.
+ */
+export interface ChangeDocumentBase {
+  /**
+   * The record's id. A Resource's id on `kind: 'resource'`. On every other
+   * kind, the absolute URL of the record (a Collection's `.../meta` or
+   * `.../meta/log`), since such a record has no id of its own.
+   */
+  id: string
+  /**
+   * `true` on a tombstone. The one tombstone marker every object uses; an
+   * RxDB adapter maps it to `_deleted` at its own boundary.
+   */
+  deleted: boolean
+  /**
+   * RFC3339 date-time of the change. With `updatedAtCounter` and `originId`
+   * it is the record's {@link WriteStamp}, which orders two revisions of one
+   * record. It has no ordering role in the feed, which is ordered by the
+   * issuing server's feed position.
+   */
+  updatedAt: string
+  /** the stamp's logical counter; see {@link WriteStamp.updatedAtCounter} */
+  updatedAtCounter: number
+  /** the store that minted the stamp; see {@link WriteStamp.originId} */
+  originId: string
+  /**
+   * the opaque marker minted at the record's first write and kept for its
+   * life. Absent when the server does not version the record.
+   */
+  generation?: string
+  /**
+   * the checkpoint that resumes the feed right after this document, so a
+   * client can checkpoint on any prefix of a page
+   */
+  checkpoint: ChangesCheckpoint
+  /**
+   * the record's current `ETag`, quoted, exactly as the server emits it in
+   * the response header. Echoed verbatim as `If-Match` on a conditional
+   * write. Absent when the server does not version the record.
+   */
+  etag?: string
+}
+
+/**
+ * A `kind: 'resource'` change document: a Resource or its tombstone, whatever
+ * its content type. A tombstone (a soft-deleted Resource) has `deleted: true`
+ * and no `data`; its server-managed properties still travel, so a delete
+ * replicates with its attribution intact.
+ *
+ * `data` rides inline for a JSON Resource only. A binary or `text/jsonl`
+ * Resource carries no `data`, and a reader fetches its representation.
  *
  * `data` and `custom` are exactly what the server stores. On an encrypted
  * Collection both are the declared scheme's opaque envelope rather than
@@ -635,38 +684,14 @@ export type ChangesCheckpoint = string
  * future scheme's envelope need not be an EDV document, and the server stores
  * whichever it is verbatim without decrypting. `data` is `unknown` also because
  * a plaintext Resource body may be any JSON value, a bare primitive included.
- *
- * Note this is the WIRE shape (`id` / `_deleted`), which a server's internal
- * storage-port shape need not match.
  */
-export interface ChangeDocument {
-  /** the Resource id */
-  id: string
-  /** `true` on a tombstone */
-  _deleted: boolean
+export interface ResourceChangeDocument extends ChangeDocumentBase {
+  kind: 'resource'
   /**
-   * RFC3339 date-time of the change. With `updatedAtCounter` and `originId`
-   * it is the content record's {@link WriteStamp}, which orders two revisions
-   * of one Resource. It has no ordering role in the feed, which is ordered by
-   * the issuing server's feed position.
+   * the Resource's stored media type. A tombstone carries the last-known
+   * type.
    */
-  updatedAt: string
-  /** the stamp's logical counter; see {@link WriteStamp.updatedAtCounter} */
-  updatedAtCounter: number
-  /** the store that minted the stamp; see {@link WriteStamp.originId} */
-  originId: string
-  /**
-   * the checkpoint that resumes the feed right after this document, so a
-   * client can checkpoint on any prefix of a page
-   */
-  checkpoint: ChangesCheckpoint
-  /**
-   * the Resource's current content `ETag`, quoted, exactly as the server
-   * emits it in the response header. Echoed verbatim as `If-Match` on a
-   * conditional content write. Absent when the server does not version the
-   * Resource.
-   */
-  etag?: string
+  contentType: string
   /**
    * the `/meta` record's own stamp and generation, once metadata has been
    * written
@@ -689,8 +714,7 @@ export interface ChangeDocument {
    * declared one (see {@link ResourceMetadata.epoch}). Rides the feed so a
    * replicating reader can pick the right epoch key without fetching `/meta`
    * per Resource; a puller encountering an epoch id it does not know must
-   * re-read the Collection's Metadata object (a rekey changes that object only
-   * and emits no feed entry).
+   * re-read the Collection's Metadata object.
    */
   epoch?: string
   /**
@@ -702,13 +726,50 @@ export interface ChangeDocument {
    * itself a revision. Advisory and never server-verified.
    */
   writerId?: string
-  /** the stored JSON body, or its encryption envelope; absent on a tombstone */
+  /**
+   * the stored JSON body, or its encryption envelope. Present on a live JSON
+   * Resource only.
+   */
   data?: unknown
   /**
    * the user-writable metadata (`{ name, tags }`) on a plaintext Collection,
    * or its encryption envelope on an encrypted one
    */
   custom?: ResourceMetadataCustom | Record<string, unknown>
+}
+
+/**
+ * A change document for a record of the Collection itself: its Metadata
+ * object (`collection-metadata`) or its governing history log (`log`). It
+ * carries no body; a reader fetches the record at `id`, its URL.
+ */
+export interface ContainerChangeDocument extends ChangeDocumentBase {
+  kind: 'collection-metadata' | 'log'
+}
+
+/**
+ * One document of the `changes` query profile's replication feed,
+ * discriminated on `kind`. A consumer skips a document whose `kind` it does
+ * not know, so a later kind is additive; {@link isResourceChange} is the
+ * filter a consumer of Resources applies.
+ *
+ * Note this is the WIRE shape, which a server's internal storage-port shape
+ * need not match.
+ */
+export type ChangeDocument = ResourceChangeDocument | ContainerChangeDocument
+
+/**
+ * Narrows a change document to a Resource's. A consumer that syncs Resources
+ * filters the feed with it and so skips every other kind, including one it
+ * does not know.
+ * @param document {object}   a document of a `changes` page
+ * @param document.kind {string}
+ * @returns {boolean}
+ */
+export function isResourceChange(document: {
+  kind: string
+}): document is ResourceChangeDocument {
+  return document.kind === 'resource'
 }
 
 /**

@@ -1,5 +1,27 @@
 # @interop/storage-core Changelog
 
+## 0.32.0 - TBD
+
+### Added
+
+- `ChangeDocument` is now a union discriminated on a required `kind`:
+  `ResourceChangeDocument` (`kind: 'resource'`) and `ContainerChangeDocument`
+  (`kind: 'collection-metadata' | 'log'`), over a shared `ChangeDocumentBase`. A
+  consumer skips a `kind` it does not know.
+- `isResourceChange(document)`, the guard a consumer of Resources filters the
+  feed with.
+- `contentType` on `ResourceChangeDocument`. The feed carries every Resource
+  whatever its content type, and `data` rides inline for a JSON Resource only.
+- `generation?` on every change document, the record's generation beside its
+  stamp.
+
+### Changed
+
+- **BREAKING**: the change document's `_deleted` member is renamed `deleted`.
+- **BREAKING**: on a `collection-metadata` or `log` document, `id` is the
+  record's absolute URL. Code that reads `id` as a Resource id narrows on `kind`
+  first.
+
 ## 0.31.0 - 2026-10-03
 
 ### Added

@@ -2,6 +2,7 @@ import { describe, it, expect, expectTypeOf } from 'vitest'
 import { isMetaStamp, isWriteStamp } from '../../src/index.js'
 import type {
   ChangeDocument,
+  ResourceChangeDocument,
   CollectionMetadata,
   ResourceMetaStamp,
   ResourceMetadata,
@@ -18,8 +19,10 @@ const stamp = {
 describe('write stamp', () => {
   it('is required on a change document, with the /meta stamp nested', () => {
     expectTypeOf({
+      kind: 'resource' as const,
       id: 'hello-world',
-      _deleted: false,
+      contentType: 'application/json',
+      deleted: false,
       checkpoint: 'opaque-1',
       ...stamp,
       meta: { ...stamp, updatedAtCounter: 1, generation: '3mJr7AoUXx2' }
@@ -27,7 +30,7 @@ describe('write stamp', () => {
     expectTypeOf<ChangeDocument>().toExtend<WriteStamp>()
     expectTypeOf<ChangeDocument['updatedAtCounter']>().toEqualTypeOf<number>()
     expectTypeOf<ChangeDocument['originId']>().toEqualTypeOf<string>()
-    expectTypeOf<ChangeDocument['meta']>().toEqualTypeOf<
+    expectTypeOf<ResourceChangeDocument['meta']>().toEqualTypeOf<
       ResourceMetaStamp | undefined
     >()
   })

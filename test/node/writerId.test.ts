@@ -2,7 +2,8 @@ import { describe, it, expectTypeOf } from 'vitest'
 import type {
   ResourceMetadata,
   ResourceSummary,
-  ChangeDocument
+  ChangeDocument,
+  ResourceChangeDocument
 } from '../../src/index.js'
 
 describe('writerId', () => {
@@ -29,12 +30,14 @@ describe('writerId', () => {
   })
 
   it('rides the changes feed, tombstones included', () => {
-    expectTypeOf<ChangeDocument['writerId']>().toEqualTypeOf<
+    expectTypeOf<ResourceChangeDocument['writerId']>().toEqualTypeOf<
       string | undefined
     >()
     expectTypeOf({
+      kind: 'resource' as const,
       id: 'hello-world',
-      _deleted: true as const,
+      contentType: 'application/json',
+      deleted: true as const,
       updatedAt: '2026-01-15T12:00:00.000Z',
       updatedAtCounter: 1,
       originId: '8dGmQyVw3nXtRk2LpZc7Ha',
