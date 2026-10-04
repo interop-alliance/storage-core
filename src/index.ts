@@ -7,6 +7,7 @@
  * resource-log wire types (`./resourceLog`). The EDV data model will be added
  * as `./edv` without changing this surface.
  */
+export * from './collectionTombstone.js'
 export * from './common.js'
 export * from './contentType.js'
 export * from './resourceLog.js'

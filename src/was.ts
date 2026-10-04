@@ -535,6 +535,29 @@ export interface CollectionSummary {
 }
 
 /**
+ * One tombstone entry in a {@link CollectionsList}: a deleted Collection.
+ * Delete Collection leaves a stamped tombstone in place of the Collection
+ * Metadata object, so a replica can tell a delete from a Collection it has not
+ * seen. A tombstone item appears only when the listing is requested with
+ * `?include=deleted`; a listing requested without it carries live
+ * {@link CollectionSummary} items alone. It has no `name` and no `public`
+ * member. Its write stamp is the stamp of the deleting write.
+ */
+export interface CollectionTombstoneSummary extends WriteStamp {
+  id: string
+  /**
+   * relative URL of the deleted Collection, `/space/:spaceId/:collectionId/`,
+   * canonically trailing-slash
+   */
+  url: string
+  /**
+   * marks the item as a tombstone; a live {@link CollectionSummary} carries no
+   * `deleted` member
+   */
+  deleted: true
+}
+
+/**
  * Return shape of the List Collections operation (the Collections within one
  * Space). Renamed from the former `CollectionListing` to disambiguate it from
  * {@link CollectionResourcesList}.
@@ -546,7 +569,14 @@ export interface CollectionsList {
    */
   url: string
   totalItems: number
-  items: CollectionSummary[]
+  /**
+   * The listed Collections. Live items are {@link CollectionSummary}. A
+   * listing requested with `?include=deleted` also carries
+   * {@link CollectionTombstoneSummary} items, told apart by `deleted: true`
+   * (see {@link isCollectionTombstoneSummary}). Without that query, every
+   * item is live.
+   */
+  items: Array<CollectionSummary | CollectionTombstoneSummary>
   /**
    * Pagination continuation link (spec "Pagination"). When present, a URL the
    * client dereferences (with the same authorization) to retrieve the following

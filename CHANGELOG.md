@@ -1,5 +1,23 @@
 # @interop/storage-core Changelog
 
+## 0.31.0 - TBD
+
+### Added
+
+- `CollectionTombstoneSummary`, the List Collections item for a deleted
+  Collection: `id`, `url`, `deleted: true`, and the `WriteStamp` of the delete.
+  It carries no `name` and no `public`. A server lists one only under
+  `?include=deleted`.
+- `isCollectionTombstoneSummary(item)`, the guard that tells a tombstone item
+  from a live `CollectionSummary`.
+
+### Changed
+
+- **BREAKING**: `CollectionsList.items` is now
+  `Array<CollectionSummary | CollectionTombstoneSummary>`. `CollectionSummary`
+  is unchanged. Code that reads `name` or `public` off an item narrows it first,
+  with the guard or `'deleted' in item`.
+
 ## 0.30.0 - 2026-10-03
 
 ### Added
