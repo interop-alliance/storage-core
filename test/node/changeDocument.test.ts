@@ -31,11 +31,18 @@ const metadata: ChangeDocument = {
   ...stamp
 }
 
+const policyTombstone: ChangeDocument = {
+  kind: 'policy',
+  id: 'https://was.example/space/s/c/r/policy',
+  deleted: true,
+  ...stamp
+}
+
 describe('isResourceChange', () => {
   it('keeps a resource of any content type and drops every other kind', () => {
     expect(isResourceChange(resource('image/png'))).toBe(true)
     expect(isResourceChange(metadata)).toBe(false)
-    expect(isResourceChange({ kind: 'policy' })).toBe(false)
+    expect(isResourceChange(policyTombstone)).toBe(false)
   })
 })
 
@@ -58,6 +65,6 @@ describe('isJsonResourceChange', () => {
   it('drops every other kind, an unknown one included', () => {
     expect(isJsonResourceChange(metadata)).toBe(false)
     expect(isJsonResourceChange({ kind: 'log' })).toBe(false)
-    expect(isJsonResourceChange({ kind: 'policy' })).toBe(false)
+    expect(isJsonResourceChange(policyTombstone)).toBe(false)
   })
 })

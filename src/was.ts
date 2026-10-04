@@ -464,10 +464,34 @@ export interface CollectionMetadata {
  * normal zcap-only authorization decision. Policies are permissive-only: they
  * can broaden access beyond what a capability grants, never restrict a valid
  * capability holder.
+ *
+ * A stored policy is a versioned record. A read serves the write stamp of its
+ * last write (`updatedAt`, `updatedAtCounter`, `originId`) as server-derived
+ * members, and its generation inside the `ETag` only. A write body's stamp
+ * members and `deleted` are ignored.
  */
 export interface PolicyDocument {
   type: string
+  /**
+   * RFC3339 date-time of the policy's last write; with `updatedAtCounter`
+   * and `originId` it is the policy's {@link WriteStamp}. Server-derived.
+   */
+  updatedAt?: string
+  /** the stamp's logical counter; see {@link WriteStamp.updatedAtCounter} */
+  updatedAtCounter?: number
+  /** the store that minted the stamp; see {@link WriteStamp.originId} */
+  originId?: string
   [key: string]: unknown
+}
+
+/**
+ * A deleted access-control policy as `GET .../policy?include=deleted` serves
+ * it under a capability: the `deleted` marker and the write stamp of the
+ * delete, with no `type`. It grants nothing and reads as absent everywhere
+ * else: a plain `GET` answers it 404, the same as no policy at all.
+ */
+export interface PolicyTombstone extends WriteStamp {
+  deleted: true
 }
 
 /** One entry in a {@link SpaceListing} (a Space within the repository). */
@@ -630,7 +654,8 @@ export interface ChangeDocumentBase {
   /**
    * The record's id. A Resource's id on `kind: 'resource'`. On every other
    * kind, the absolute URL of the record (a Collection's `.../meta` or
-   * `.../meta/log`), since such a record has no id of its own.
+   * `.../meta/log`, or a Collection's or Resource's `.../policy`), since such
+   * a record has no id of its own.
    */
   id: string
   /**
@@ -749,6 +774,17 @@ export interface ContainerChangeDocument extends ChangeDocumentBase {
 }
 
 /**
+ * A change document for an access-control policy in the Collection: the
+ * Collection's own policy or a Resource's, live or a tombstone
+ * (`deleted: true`). A Space policy is in no Collection's feed. It carries no
+ * body; a reader fetches the policy at `id`, its URL, with
+ * `?include=deleted` to read a tombstone.
+ */
+export interface PolicyChangeDocument extends ChangeDocumentBase {
+  kind: 'policy'
+}
+
+/**
  * One document of the `changes` query profile's replication feed,
  * discriminated on `kind`. A consumer skips a document whose `kind` it does
  * not know, so a later kind is additive; {@link isResourceChange} is the
@@ -757,7 +793,8 @@ export interface ContainerChangeDocument extends ChangeDocumentBase {
  * Note this is the WIRE shape, which a server's internal storage-port shape
  * need not match.
  */
-export type ChangeDocument = ResourceChangeDocument | ContainerChangeDocument
+export type ChangeDocument =
+  ResourceChangeDocument | ContainerChangeDocument | PolicyChangeDocument
 
 /**
  * Narrows a change document to a Resource's. A consumer that syncs Resources

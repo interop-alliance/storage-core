@@ -1,5 +1,17 @@
 # @interop/storage-core Changelog
 
+## 0.34.0 - TBD
+
+### Added
+
+- `PolicyChangeDocument` (`kind: 'policy'`) in the `ChangeDocument` union: a
+  Collection's or Resource's access-control policy, or its tombstone. Its `id`
+  is the policy's absolute URL, and it carries no body.
+- `PolicyTombstone`: `deleted: true` plus the delete's write stamp, as
+  `GET .../policy?include=deleted` serves a deleted policy.
+- `PolicyDocument` types the server-derived stamp members a read serves:
+  `updatedAt`, `updatedAtCounter`, `originId`.
+
 ## 0.33.0 - 2026-10-04
 
 ### Added
