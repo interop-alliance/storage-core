@@ -17,14 +17,14 @@ const stamp = {
 
 describe('write stamp', () => {
   it('is required on a change document, with the /meta stamp nested', () => {
-    const entry = {
+    expectTypeOf({
       id: 'hello-world',
       _deleted: false,
       checkpoint: 'opaque-1',
       ...stamp,
       meta: { ...stamp, updatedAtCounter: 1, generation: '3mJr7AoUXx2' }
-    } satisfies ChangeDocument
-    expectTypeOf(entry).toExtend<WriteStamp>()
+    }).toExtend<ChangeDocument>()
+    expectTypeOf<ChangeDocument>().toExtend<WriteStamp>()
     expectTypeOf<ChangeDocument['updatedAtCounter']>().toEqualTypeOf<number>()
     expectTypeOf<ChangeDocument['originId']>().toEqualTypeOf<string>()
     expectTypeOf<ChangeDocument['meta']>().toEqualTypeOf<
@@ -38,13 +38,15 @@ describe('write stamp', () => {
   })
 
   it('is optional on Resource metadata, with the /meta stamp nested', () => {
-    const metadata = {
+    expectTypeOf({
       contentType: 'application/json',
       size: 16,
       ...stamp,
       meta: { ...stamp, generation: '3mJr7AoUXx2' }
-    } satisfies ResourceMetadata
-    expectTypeOf(metadata.meta).toExtend<ResourceMetaStamp>()
+    }).toExtend<ResourceMetadata>()
+    expectTypeOf<ResourceMetadata['meta']>().toEqualTypeOf<
+      ResourceMetaStamp | undefined
+    >()
     expectTypeOf({
       contentType: 'application/json',
       size: 16

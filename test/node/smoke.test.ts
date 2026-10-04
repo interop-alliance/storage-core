@@ -16,7 +16,10 @@ describe('@interop/storage-core', () => {
 
   it('maps every problem type to a canonical HTTP status', () => {
     for (const type of Object.values(ProblemTypes)) {
-      expect(typeof ProblemStatusCodes[type]).toBe('number')
+      const status = ProblemStatusCodes[type]
+      expect(Number.isInteger(status)).toBe(true)
+      expect(status).toBeGreaterThanOrEqual(400)
+      expect(status).toBeLessThan(600)
     }
     expect(ProblemStatusCodes[ProblemTypes.NOT_FOUND]).toBe(404)
     expect(ProblemStatusCodes[ProblemTypes.QUOTA_EXCEEDED]).toBe(507)

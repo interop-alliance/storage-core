@@ -8,7 +8,7 @@
     "clear": "rimraf dist/*",
     "fix": "eslint --fix src test && pnpm run format",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"*.md\"",
-    "lint": "eslint src test",
+    "lint": "eslint src test && tsc -p tsconfig.dev.json",
     "prepare": "pnpm run build",
     "rebuild": "pnpm run clear && pnpm run build",
     "test": "pnpm run fix && pnpm run lint && pnpm run test:node",

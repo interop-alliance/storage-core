@@ -7,51 +7,39 @@ import type {
 
 describe('writerId', () => {
   it('is an optional string sibling of epoch on ResourceMetadata', () => {
-    const withWriterId = {
+    expectTypeOf<ResourceMetadata['writerId']>().toEqualTypeOf<
+      string | undefined
+    >()
+    expectTypeOf({
       contentType: 'application/json',
       size: 16,
       epoch: 'epoch-1',
       writerId: 'z6fVXHKn8PdQm2Rt'
-    } satisfies ResourceMetadata
-    const withoutWriterId = {
+    }).toExtend<ResourceMetadata>()
+    expectTypeOf({
       contentType: 'application/json',
       size: 16
-    } satisfies ResourceMetadata
-    expectTypeOf(withWriterId.writerId).toEqualTypeOf<string | undefined>()
-    expectTypeOf(withoutWriterId).toExtend<ResourceMetadata>()
+    }).toExtend<ResourceMetadata>()
   })
 
   it('mirrors onto the listing item summary', () => {
-    const summary = {
-      id: 'hello-world',
-      url: '/space/x/messages/hello-world',
-      contentType: 'application/json',
-      epoch: 'epoch-1',
-      writerId: 'z6fVXHKn8PdQm2Rt'
-    } satisfies ResourceSummary
-    expectTypeOf(summary.writerId).toEqualTypeOf<string | undefined>()
+    expectTypeOf<ResourceSummary['writerId']>().toEqualTypeOf<
+      string | undefined
+    >()
   })
 
   it('rides the changes feed, tombstones included', () => {
-    const entry = {
+    expectTypeOf<ChangeDocument['writerId']>().toEqualTypeOf<
+      string | undefined
+    >()
+    expectTypeOf({
       id: 'hello-world',
-      _deleted: false,
-      updatedAt: '2026-01-15T12:00:00.000Z',
-      updatedAtCounter: 0,
-      originId: '8dGmQyVw3nXtRk2LpZc7Ha',
-      checkpoint: 'opaque-1',
-      writerId: 'z6fVXHKn8PdQm2Rt'
-    } satisfies ChangeDocument
-    const tombstone = {
-      id: 'hello-world',
-      _deleted: true,
+      _deleted: true as const,
       updatedAt: '2026-01-15T12:00:00.000Z',
       updatedAtCounter: 1,
       originId: '8dGmQyVw3nXtRk2LpZc7Ha',
       checkpoint: 'opaque-2',
       writerId: 'z6fVXHKn8PdQm2Rt'
-    } satisfies ChangeDocument
-    expectTypeOf(entry.writerId).toEqualTypeOf<string | undefined>()
-    expectTypeOf(tombstone.writerId).toEqualTypeOf<string | undefined>()
+    }).toExtend<ChangeDocument>()
   })
 })

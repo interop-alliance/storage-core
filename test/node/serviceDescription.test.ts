@@ -18,7 +18,7 @@ describe('ServiceDescription', () => {
       signatureAlgorithms: ['EdDSA'],
       zcapCryptosuites: ['Ed25519Signature2020', 'eddsa-jcs-2022']
     } satisfies AuthzProfileVersionEntry
-    const document = {
+    expectTypeOf({
       url: 'https://was.example/service',
       specs: {
         'https://w3id.org/pws': [wasEntry],
@@ -27,12 +27,15 @@ describe('ServiceDescription', () => {
         'https://example.org/other-spec': [{ version: '1.2', endpoint: 'x' }]
       },
       instance: { name: 'was-teaching-server' }
-    } satisfies ServiceDescription
-    expectTypeOf(
-      document.specs['https://w3id.org/pws']![0]!
-    ).toExtend<ServiceDescriptionVersionEntry>()
-    expectTypeOf(
-      document.specs['https://w3id.org/pws/authz-profile']![0]!
-    ).toExtend<ServiceDescriptionVersionEntry>()
+    }).toExtend<ServiceDescription>()
+  })
+
+  it('holds any specification entry carrying a version', () => {
+    expectTypeOf<ServiceDescription['specs'][string]>().toEqualTypeOf<
+      ServiceDescriptionVersionEntry[]
+    >()
+    expectTypeOf<
+      ServiceDescriptionVersionEntry['version']
+    >().toEqualTypeOf<string>()
   })
 })

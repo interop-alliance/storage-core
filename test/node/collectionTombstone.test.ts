@@ -27,12 +27,11 @@ const tombstone = {
 
 describe('Collection tombstone listing items', () => {
   it('accepts a listing that mixes live and tombstone items', () => {
-    const listing = {
+    expectTypeOf({
       url: '/space/s1/',
       totalItems: 1,
       items: [live, tombstone]
-    } satisfies CollectionsList
-    expect(listing.items).toHaveLength(2)
+    }).toExtend<CollectionsList>()
   })
 
   it('tells a tombstone item from a live one', () => {
