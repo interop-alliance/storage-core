@@ -21,6 +21,7 @@
 import type { IDID } from '@interop/data-integrity-core'
 
 import type { Action, StorageLimit } from './common.js'
+import { isJsonContentType } from './contentType.js'
 
 /**
  * The write stamp every versioned record carries: a hybrid logical clock
@@ -770,6 +771,23 @@ export function isResourceChange(document: {
   kind: string
 }): document is ResourceChangeDocument {
   return document.kind === 'resource'
+}
+
+/**
+ * Narrows a change document to a JSON Resource's, live or tombstone: a
+ * `kind: 'resource'` document whose `contentType` is JSON (see
+ * {@link isJsonContentType}). A consumer that moves JSON documents filters the
+ * feed with it, skipping the Collection's own records, a kind it does not
+ * know, and a binary or `text/jsonl` Resource. A live document it accepts
+ * carries its body inline under `data`.
+ * @param document {object}   a document of a `changes` page
+ * @param document.kind {string}
+ * @returns {boolean}
+ */
+export function isJsonResourceChange(document: {
+  kind: string
+}): document is ResourceChangeDocument {
+  return isResourceChange(document) && isJsonContentType(document.contentType)
 }
 
 /**

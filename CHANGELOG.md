@@ -1,5 +1,13 @@
 # @interop/storage-core Changelog
 
+## 0.33.0 - TBD
+
+### Added
+
+- `isJsonResourceChange(document)`, the guard a consumer of JSON documents
+  filters the `changes` feed with: a `kind: 'resource'` document whose
+  `contentType` is JSON.
+
 ## 0.32.0 - 2026-10-04
 
 ### Added
