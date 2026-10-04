@@ -15,10 +15,12 @@
  * here.
  *
  * `controller` references `IDID` from `@interop/data-integrity-core` via a
- * type-only import; that type is *used* in declarations but not re-exported --
- * consumers that need `IDID` import it directly from `data-integrity-core`.
+ * type-only import, and a replica registration's `capability` references
+ * `IDelegatedZcap` the same way. Those types are *used* in declarations but
+ * not re-exported -- consumers that need them import them directly from
+ * `data-integrity-core`.
  */
-import type { IDID } from '@interop/data-integrity-core'
+import type { IDID, IDelegatedZcap } from '@interop/data-integrity-core'
 
 import type { Action, StorageLimit } from './common.js'
 import { isJsonContentType } from './contentType.js'
@@ -110,6 +112,15 @@ export interface SpaceMetadata {
    * backends omits it.
    */
   backends?: BackendDescriptor[]
+  /**
+   * The Space's replica registrations on this server, one item per registered
+   * peer, in the registration's own vocabulary. It carries no registration
+   * `id`, no capability, and no runtime state. Server-derived and read-only: a
+   * value supplied in a write body is ignored, on the same terms as
+   * `backends`. It is per-server state, so two replicas of one Space serve
+   * different values. A server that does not replicate omits it.
+   */
+  replicas?: ReplicaSummary[]
   /**
    * RFC3339 date-time this Metadata object was last written. With
    * `updatedAtCounter` and `originId` it is the object's {@link WriteStamp}.
@@ -1039,6 +1050,106 @@ export interface BackendRegistration {
   managedBy?: 'external'
   provider: string
   connection: BackendConnectionInput
+}
+
+/**
+ * The part a registered peer plays for the local Space. `source` is the only
+ * role: the local Space pulls from the peer.
+ */
+export type ReplicaRole = 'source'
+
+/**
+ * A replica registration: one source peer of a Space, as a directed edge. It
+ * is the body a controller sends to `POST /space/{space_id}/replicas` and the
+ * object `GET /space/{space_id}/replicas/{replica_id}` serves back unchanged.
+ * Every method on it is controller-only. A registration is per-server state.
+ * It is not replicated and not exported, and Delete Space removes it.
+ *
+ * Replication is one-way. Nothing flows back to the peer without a
+ * counterpart registration on the peer's side.
+ */
+export interface ReplicaRegistration {
+  /** client-supplied and URL-safe; a duplicate is refused as `id-conflict` */
+  id: string
+  /**
+   * The peer Space's canonical trailing-slash URL, where the data comes from.
+   * Its Space id need not equal the local one.
+   */
+  fromSpace: string
+  /** the local Space's canonical trailing-slash URL */
+  toSpace: string
+  /**
+   * The pull capability the Space's controller delegated to this server's
+   * DID. Its chain roots in the peer Space and its `allowedAction` lies within
+   * `GET` and `HEAD`. A server serves it back to the controller only.
+   */
+  capability: IDelegatedZcap
+  /**
+   * The Collections to pull. Absent means all of them. Space-level state and
+   * the controller's log Collection are pulled whatever the list says.
+   */
+  collections?: Array<{ id: string }>
+  role: ReplicaRole
+}
+
+/**
+ * One item of {@link SpaceMetadata.replicas}: the members of a
+ * {@link ReplicaRegistration} that any reader of the Space Metadata object
+ * may see.
+ */
+export type ReplicaSummary = Pick<
+  ReplicaRegistration,
+  'fromSpace' | 'toSpace' | 'role'
+>
+
+/**
+ * The pull loop's state for one Collection of a registration, an item of
+ * {@link ReplicaStatus.collections}.
+ *
+ * - `synced` -- every change the peer's feed listed is applied.
+ * - `syncing` -- changes are being pulled or applied.
+ * - `stalled` -- the checkpoint holds until the cause in `stall` is removed.
+ *   The loop retries the Collection each cycle, and the other Collections
+ *   continue.
+ * - `skipped` -- the Collection is not pulled.
+ */
+export interface ReplicaCollectionStatus {
+  id: string
+  state: 'synced' | 'syncing' | 'stalled' | 'skipped'
+  /** RFC3339 date-time of the last change applied to the Collection */
+  lastAppliedAt?: string
+  /** present while `state` is `stalled` */
+  stall?: {
+    /** a short token naming the cause */
+    reason: string
+    /** RFC3339 date-time the stall began */
+    since: string
+    /** human-readable specifics, such as the record or backend involved */
+    detail?: string
+  }
+}
+
+/**
+ * The runtime state of a registration's pull loop, as
+ * `GET /space/{space_id}/replicas/{replica_id}/status` serves it. It is
+ * controller-only and uncacheable, and it is not part of the
+ * {@link ReplicaRegistration} record.
+ *
+ * - `idle` -- waiting for the next cycle.
+ * - `pulling` -- a cycle is running.
+ * - `backing-off` -- the peer answered an error, and the loop retries at
+ *   `nextPullAt`.
+ * - `stalled` -- at least one Collection is stalled.
+ */
+export interface ReplicaStatus {
+  state: 'idle' | 'pulling' | 'backing-off' | 'stalled'
+  /** RFC3339 date-time the last cycle started */
+  lastPullAt?: string
+  /** RFC3339 date-time the last cycle that reached the peer completed */
+  lastSuccessAt?: string
+  /** RFC3339 date-time the next cycle is due */
+  nextPullAt?: string
+  collections: ReplicaCollectionStatus[]
 }
 
 /**

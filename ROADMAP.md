@@ -1,6 +1,6 @@
 # storage-core Roadmap (open items)
 
-nextAvailableId: 10
+nextAvailableId: 11
 
 Status as of 2026-09-11. Uses the formalized item structure shared with the
 freewallet and was-teaching-server roadmaps (canonical in
@@ -62,3 +62,41 @@ no `name` and no `public` flag, since the Collection Metadata object it would
 read them from is gone, so it is its own interface rather than optional members
 on `CollectionSummary`. The Collection Metadata object type is unchanged: a
 tombstone is never served as a Metadata object.
+
+### SC-10: Replica registration and status types
+
+- status: in-progress
+- priority: medium
+- labels: types, spaces, replication
+- discovered-from: was-teaching-server WAS-176 (2026-10-04)
+- touches:
+  - storage-core (this repo): shipped 2026-10-04, unpublished (0.35.0) --
+    `ReplicaRegistration`, `ReplicaRole`, `ReplicaSummary`,
+    `SpaceMetadata.replicas`, `ReplicaStatus`, `ReplicaCollectionStatus`,
+    CHANGELOG.md
+  - was-teaching-server: unresolved -- the registration routes, the `status`
+    sub-resource and the derived `replicas` member (its WAS-176). It also adds
+    `replicas` and `zcaps` to `RESERVED_COLLECTION_IDS` here in the same change
+    as its own copy, since its drift test compares the two sets
+  - was-client: unresolved -- the `replicas` member and a registration API
+  - wallet-attached-storage-spec: unresolved -- the replication specification
+    and the Space Metadata object's `replicas` member
+- acceptance:
+  - [x] `ReplicaRegistration` carries `id`, `fromSpace`, `toSpace`,
+        `capability`, optional `collections` and `role`
+  - [x] `SpaceMetadata.replicas` is a list of `{ fromSpace, toSpace, role }`
+        with no registration `id` and no capability
+  - [x] `ReplicaStatus` carries the loop `state`, the three pull times and the
+        per-Collection items with their optional `stall`
+  - [x] a node test pins the shapes
+  - [x] CHANGELOG entry
+  - [ ] the reference server and was-client build against the types
+
+Context: the WAS reference server is adding one-way, pull-only replication of a
+Space between servers. A controller registers a source peer at a controller-only
+sub-resource of the Space, and the server serves the loop's runtime state at a
+`status` sub-resource beside it. The shapes were decided in the server's
+multi-primary design (its wire items 6 and 7) and its decision record 0005. The
+stall `reason` is typed as a plain string, since the design names the causes but
+not their tokens. The listing shape of `GET /space/{space_id}/replicas` is not
+typed here either, for the same reason.

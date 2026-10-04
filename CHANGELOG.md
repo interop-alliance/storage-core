@@ -1,5 +1,20 @@
 # @interop/storage-core Changelog
 
+## 0.35.0 - TBD
+
+### Added
+
+- `ReplicaRegistration`: one source peer of a Space, as the controller writes it
+  to `POST /space/{space_id}/replicas` and reads it back. Members `id`,
+  `fromSpace`, `toSpace`, `capability`, optional `collections` (`{ id }`
+  objects, absent meaning all) and `role`.
+- `ReplicaRole`, `'source'` only.
+- `ReplicaSummary` and `SpaceMetadata.replicas`: the server-derived listing of
+  each registration's `fromSpace`, `toSpace` and `role` on the Space Metadata
+  object.
+- `ReplicaStatus` and `ReplicaCollectionStatus`: the pull loop's runtime state
+  as `GET /space/{space_id}/replicas/{replica_id}/status` serves it.
+
 ## 0.34.0 - 2026-10-04
 
 ### Added
