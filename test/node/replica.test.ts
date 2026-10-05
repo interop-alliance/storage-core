@@ -55,7 +55,10 @@ describe('Replica registration types', () => {
         {
           id: 'photos',
           state: 'stalled' as const,
-          stall: { reason: 'quota', since: '2026-10-04T00:00:00.000Z' }
+          stall: {
+            reason: 'quota-exceeded' as const,
+            since: '2026-10-04T00:00:00.000Z'
+          }
         }
       ]
     }).toExtend<ReplicaStatus>()

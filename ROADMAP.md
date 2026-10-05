@@ -73,11 +73,11 @@ tombstone is never served as a Metadata object.
   - storage-core (this repo): shipped 2026-10-04, unpublished (0.35.0) --
     `ReplicaRegistration`, `ReplicaRole`, `ReplicaSummary`,
     `SpaceMetadata.replicas`, `ReplicaStatus`, `ReplicaCollectionStatus`,
-    CHANGELOG.md
+    `ReplicaStallReason`, `ReplicaListing`, `ProblemTypes.REPLICA_REFUSED`,
+    `CollectionMetadata.created`, `replicas` and `zcaps` in
+    `RESERVED_COLLECTION_IDS`, CHANGELOG.md
   - was-teaching-server: unresolved -- the registration routes, the `status`
-    sub-resource and the derived `replicas` member (its WAS-176). It also adds
-    `replicas` and `zcaps` to `RESERVED_COLLECTION_IDS` here in the same change
-    as its own copy, since its drift test compares the two sets
+    sub-resource and the derived `replicas` member (its WAS-176)
   - was-client: unresolved -- the `replicas` member and a registration API
   - wallet-attached-storage-spec: unresolved -- the replication specification
     and the Space Metadata object's `replicas` member
@@ -97,6 +97,5 @@ Space between servers. A controller registers a source peer at a controller-only
 sub-resource of the Space, and the server serves the loop's runtime state at a
 `status` sub-resource beside it. The shapes were decided in the server's
 multi-primary design (its wire items 6 and 7) and its decision record 0005. The
-stall `reason` is typed as a plain string, since the design names the causes but
-not their tokens. The listing shape of `GET /space/{space_id}/replicas` is not
-typed here either, for the same reason.
+stall `reason` tokens, the listing object, the `replica-refused` problem type
+and the nested `created` stamp were decided on 2026-10-04.

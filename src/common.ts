@@ -80,6 +80,18 @@ export const ProblemTypes = {
   UNSUPPORTED_BACKEND: `${SPEC_URL}#unsupported-backend`,
 
   /**
+   * A replica registration (`POST /space/{space_id}/replicas`) refused over
+   * the state of the peer or of this server, as opposed to a malformed body:
+   * the server has no sync identity, the peer does not serve replication at a
+   * version this server speaks or advertises no `originId`, the peer carries
+   * this server's own origin id, the peer Space's `controller` or `type`
+   * differs from the local one, a listed Collection's immutable members
+   * differ, or the local Space is the `server` Space. The cause is in
+   * `detail`. Typical status 409.
+   */
+  REPLICA_REFUSED: `${SPEC_URL}#replica-refused`,
+
+  /**
    * A write to a Collection's Metadata object tried to change or clear an
    * existing client-side `encryption` descriptor. The descriptor is set-once:
    * it may be declared on a Collection that lacks one, but changing its scheme
@@ -291,6 +303,7 @@ export const ProblemStatusCodes: Record<ProblemType, number> = {
   [ProblemTypes.ID_CONFLICT]: 409,
   [ProblemTypes.RESERVED_ID]: 409,
   [ProblemTypes.UNSUPPORTED_BACKEND]: 409,
+  [ProblemTypes.REPLICA_REFUSED]: 409,
   [ProblemTypes.ENCRYPTION_IMMUTABLE]: 409,
   [ProblemTypes.ENCRYPTION_HISTORY_LOG_GOVERNED]: 409,
   [ProblemTypes.REVISIONS_IMMUTABLE]: 409,
@@ -359,7 +372,9 @@ export const RESERVED_COLLECTION_IDS = new Set([
   'meta',
   'policy',
   'query',
-  'quotas'
+  'quotas',
+  'replicas',
+  'zcaps'
 ])
 
 /**

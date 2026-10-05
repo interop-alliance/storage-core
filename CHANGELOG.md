@@ -1,5 +1,11 @@
 # @interop/storage-core Changelog
 
+## 0.35.1 - TBD
+
+### Fixed
+
+- Fix replicas registration release.
+
 ## 0.35.0 - 2026-10-04
 
 ### Added
@@ -14,6 +20,16 @@
   object.
 - `ReplicaStatus` and `ReplicaCollectionStatus`: the pull loop's runtime state
   as `GET /space/{space_id}/replicas/{replica_id}/status` serves it.
+- `ReplicaStallReason`, the closed set a stalled Collection's `stall.reason`
+  takes: `clock-bound`, `fork`, `quota-exceeded`, `unsupported-backend`,
+  `container-refused`.
+- `ReplicaListing`, the `{ url, totalItems, items }` object
+  `GET /space/{space_id}/replicas` serves.
+- `ProblemTypes.REPLICA_REFUSED` (`replica-refused`, 409): a replica
+  registration refused over the state of the peer or of this server.
+- `CollectionMetadata.created`: the write stamp of the write that created the
+  Collection, server-managed.
+- `replicas` and `zcaps` in `RESERVED_COLLECTION_IDS`.
 
 ## 0.34.0 - 2026-10-04
 

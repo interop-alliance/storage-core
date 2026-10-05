@@ -438,6 +438,14 @@ export interface CollectionMetadata {
   /** RFC3339 date-time the Collection was created */
   createdAt?: string
   /**
+   * The Collection's creating stamp: the {@link WriteStamp} of the write that
+   * created it, kept for its life. A Collection deleted and created again
+   * carries the stamp of the later create. Replication orders two lives of
+   * one Collection id by it. Server-managed: a value supplied in a write body
+   * is ignored.
+   */
+  created?: WriteStamp
+  /**
    * RFC3339 date-time this Metadata object was last modified. With
    * `updatedAtCounter` and `originId` it is the object's {@link WriteStamp}.
    */
@@ -1103,6 +1111,35 @@ export type ReplicaSummary = Pick<
 >
 
 /**
+ * Why a registration's pull of one Collection is stalled.
+ *
+ * - `clock-bound` -- a received write stamp is dated further ahead of local
+ *   time than the server's clock bound. It clears as local time catches up.
+ * - `fork` -- a history log, or an immutable Collection member, differs from
+ *   the local one in a way no write order resolves.
+ * - `quota-exceeded` -- applying the change would exceed a local quota.
+ * - `unsupported-backend` -- the Collection names a `backend` this server has
+ *   no registration for.
+ * - `container-refused` -- the local Space or Collection refused the write.
+ */
+export type ReplicaStallReason =
+  | 'clock-bound'
+  | 'fork'
+  | 'quota-exceeded'
+  | 'unsupported-backend'
+  | 'container-refused'
+
+/**
+ * The listing `GET /space/{space_id}/replicas` serves: every registration on
+ * the Space, unpaginated. Controller-only, like the records it lists.
+ */
+export interface ReplicaListing {
+  url: string
+  totalItems: number
+  items: ReplicaRegistration[]
+}
+
+/**
  * The pull loop's state for one Collection of a registration, an item of
  * {@link ReplicaStatus.collections}.
  *
@@ -1120,8 +1157,7 @@ export interface ReplicaCollectionStatus {
   lastAppliedAt?: string
   /** present while `state` is `stalled` */
   stall?: {
-    /** a short token naming the cause */
-    reason: string
+    reason: ReplicaStallReason
     /** RFC3339 date-time the stall began */
     since: string
     /** human-readable specifics, such as the record or backend involved */
