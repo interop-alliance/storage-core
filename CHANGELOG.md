@@ -1,5 +1,12 @@
 # @interop/storage-core Changelog
 
+## 0.36.0 - TBD
+
+### Added
+
+- `JSON_MEDIA_TYPE`: the regular expression `isJsonContentType` decides by,
+  exported so a server can register its JSON body parser under the same rule.
+
 ## 0.35.1 - 2026-10-04
 
 ### Fixed
