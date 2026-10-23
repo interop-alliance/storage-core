@@ -1,5 +1,12 @@
 # @interop/storage-core Changelog
 
+## 0.37.0 - TBD
+
+### Added
+
+- `ProblemTypes.BACKEND_IMMUTABLE` (`backend-immutable`, 409): an Update
+  Collection body that would move the Collection to another backend.
+
 ## 0.36.0 - 2026-10-12
 
 ### Added

@@ -111,6 +111,14 @@ export const ProblemTypes = {
   REVISIONS_IMMUTABLE: `${SPEC_URL}#revisions-immutable`,
 
   /**
+   * An Update Collection body named a `backend` that resolves to a backend
+   * other than the one the stored Collection selects. The selection is set
+   * when the Collection is created and cannot be moved afterward, since the
+   * Collection's Resources live on the selected backend. Typical status 409.
+   */
+  BACKEND_IMMUTABLE: `${SPEC_URL}#backend-immutable`,
+
+  /**
    * A Resource or chunk write into a Collection whose `revisions` descriptor
    * sets `immutable`, refused because it would change stored bytes: an update
    * of a live Resource or chunk, or a repeat create whose body digest differs
@@ -307,6 +315,7 @@ export const ProblemStatusCodes: Record<ProblemType, number> = {
   [ProblemTypes.ENCRYPTION_IMMUTABLE]: 409,
   [ProblemTypes.ENCRYPTION_HISTORY_LOG_GOVERNED]: 409,
   [ProblemTypes.REVISIONS_IMMUTABLE]: 409,
+  [ProblemTypes.BACKEND_IMMUTABLE]: 409,
   [ProblemTypes.RESOURCE_IMMUTABLE]: 409,
   [ProblemTypes.ENCRYPTION_SCHEME_MISMATCH]: 422,
   [ProblemTypes.UNSUPPORTED_ENCRYPTION_SCHEME]: 400,
