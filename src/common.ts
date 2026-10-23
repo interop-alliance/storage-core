@@ -16,7 +16,7 @@
  * A capability action -- an HTTP verb in its canonical uppercase form, as it
  * appears in the signed zcap. WAS servers match actions case-sensitively.
  */
-export type Action = 'GET' | 'PUT' | 'POST' | 'DELETE'
+export type Action = 'GET' | 'HEAD' | 'PUT' | 'POST' | 'DELETE'
 
 /**
  * The action input accepted by delegation helpers: canonical uppercase or

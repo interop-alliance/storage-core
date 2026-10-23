@@ -1,5 +1,12 @@
 # @interop/storage-core Changelog
 
+## 0.38.0 - TBD
+
+### Changed
+
+- `Action` (and so `ActionInput`) includes `HEAD`, the read action a share
+  grant carries beside `GET`. Servers already accept it.
+
 ## 0.37.0 - 2026-10-22
 
 ### Added
