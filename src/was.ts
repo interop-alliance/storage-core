@@ -1121,6 +1121,15 @@ export type ReplicaSummary = Pick<
  * - `unsupported-backend` -- the Collection names a `backend` this server has
  *   no registration for.
  * - `container-refused` -- the local Space or Collection refused the write.
+ * - `chunk-listing-obsolete` -- a chunked Resource is rewritten on the
+ *   source server faster than its chunk set can be pulled, cycle after
+ *   cycle. The replica serves the last complete revision.
+ * - `source-unavailable` -- a request to the source server keeps failing
+ *   inside a chunk pull (a 5xx, a 429, a grant narrowed past the chunk
+ *   paths).
+ *
+ * A reader that meets a reason it does not recognize treats the Collection
+ * as stalled for an unrecognized reason.
  */
 export type ReplicaStallReason =
   | 'clock-bound'
@@ -1128,6 +1137,8 @@ export type ReplicaStallReason =
   | 'quota-exceeded'
   | 'unsupported-backend'
   | 'container-refused'
+  | 'chunk-listing-obsolete'
+  | 'source-unavailable'
 
 /**
  * The listing `GET /space/{space_id}/replicas` serves: every registration on

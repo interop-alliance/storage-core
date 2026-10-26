@@ -1,5 +1,14 @@
 # @interop/storage-core Changelog
 
+## 0.39.0 - TBD
+
+### Added
+
+- `ReplicaStallReason` gains `chunk-listing-obsolete` (a chunked Resource
+  rewritten on the source server faster than its chunk set can be pulled) and
+  `source-unavailable` (a request to the source server that keeps failing
+  inside a chunk pull).
+
 ## 0.38.0 - 2026-10-23
 
 ### Changed

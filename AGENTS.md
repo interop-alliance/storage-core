@@ -1,14 +1,14 @@
 # Agent Guidelines
 
 This is a repository housing core TypeScript types (and in the future, JSON
-schemas) for WAS (Wallet Attached Storage) types, extracted from:
+schemas) for Portable Web Spaces (PWS, formerly WAS) types, extracted from:
 
 - `@interop/was-client`
 - `@interop/was-teaching-server`
 
 Also relevant, the WAS spec (a W3C CCG work item):
 
-- https://github.com/w3c-ccg/wallet-attached-storage-spec/blob/main/spec.md
+- https://github.com/w3c-ccg/portable-web-spaces-spec/blob/main/spec.md
 
 ## Toolchain & Project Layout
 
