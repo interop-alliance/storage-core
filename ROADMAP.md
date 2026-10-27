@@ -1,6 +1,6 @@
 # storage-core Roadmap (open items)
 
-nextAvailableId: 11
+nextAvailableId: 12
 
 Status as of 2026-09-11. Uses the formalized item structure shared with the
 freewallet and was-teaching-server roadmaps (canonical in
@@ -99,3 +99,57 @@ sub-resource of the Space, and the server serves the loop's runtime state at a
 multi-primary design (its wire items 6 and 7) and its decision record 0005. The
 stall `reason` tokens, the listing object, the `replica-refused` problem type
 and the nested `created` stamp were decided on 2026-10-04.
+
+### SC-11: Replica pause member, the `paused` state, and the replication IRI constant
+
+- status: in-progress
+- priority: medium
+- labels: types, spaces, replication
+- discovered-from: freewallet FW-688 (2026-10-26)
+- touches:
+  - storage-core (this repo): `src/was.ts` (`ReplicaRegistration`,
+    `ReplicaStatus`, `ReplicaListing` and their JSDoc), the replication IRI
+    constant, CHANGELOG.md
+  - was-teaching-server: the `pausedAt` member, its PUT and the in-place
+    capability replacement shipped (2026-10-27, consuming these types through a
+    `link:` dependency until 0.40.0 is published); the delegated replicas route
+    is its WAS-226
+  - was-client: unresolved -- WCL-137 (pause, resume, and the capability
+    replacement on `Space`) builds against these types
+  - portable-web-spaces-spec: unresolved -- decision 0013 amended and WASS-50's
+    text (the pause, the replacement, the delegated route)
+  - freewallet: unresolved -- FW-688 / FW-638's pre-flight reads the replication
+    entry by the IRI constant
+- acceptance:
+  - [x] `ReplicaRegistration` (`src/was.ts:1079-1101`) gains an optional
+        `pausedAt`: an ISO 8601 UTC time, absent meaning not paused, written and
+        cleared by PUT on the registration URL
+  - [x] `ReplicaStatus.state` (`src/was.ts:1191-1192`) gains `paused`, and the
+        interface's JSDoc state list describes it
+  - [ ] The JSDoc stops calling the registration route controller-only: the
+        `ReplicaRegistration` header (`:1073`), its `capability` member ("serves
+        it back to the controller only", `:1092`), `ReplicaListing` (`:1145`),
+        and `ReplicaStatus` (`:1182`). The route admits a delegated invocation
+        whose chain roots in the Space's root. The header also names PUT, which
+        pauses, resumes, and replaces the pull capability in place, keeping the
+        registration `id`
+  - [ ] An exported constant carries the replication spec identifier
+        `https://w3id.org/pws/replication`, so a client reads
+        `description.specs[...]` without a string literal
+  - [x] The node test pins the new member and state
+  - [x] CHANGELOG entry
+
+Context: freewallet FW-688 lets every session kind keep a replica of the account
+Space on a second server. Stopping a replica keeps its copy as a snapshot. The
+server refuses to remove the registration that maps the Space's did:webvh
+controller, so Stop pauses the registration instead of removing it. The pause is
+`pausedAt` on the registration record, and the loop's `status` reads `paused`
+while it is set. Clearing it resumes the loop from its checkpoint. The same PUT
+can replace a registration's pull capability in place, since every pull grant
+dies when its signer is withdrawn. The replication version stays `0.1`, as
+replication has not shipped. No constant for the replication IRI exists in
+storage-core or was-client today. The reference server defines its own
+(`REPLICATION_IDENTIFIER`, was-teaching-server `src/config.default.ts:449`), and
+was-client keeps the base spec's id in an internal constant (`PWS_SPEC_ID`,
+`src/internal/service.ts:28`). The design allows the constant on was-client
+instead. It is filed here since the `ServiceDescription` types live here.

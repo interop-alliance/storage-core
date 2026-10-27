@@ -29,6 +29,25 @@ describe('Replica registration types', () => {
     >()
   })
 
+  it('carries the pause member and the write stamp as optional members', () => {
+    expectTypeOf<ReplicaRegistration['pausedAt']>().toEqualTypeOf<
+      string | undefined
+    >()
+    expectTypeOf<ReplicaRegistration['updatedAt']>().toEqualTypeOf<
+      string | undefined
+    >()
+    expectTypeOf<ReplicaRegistration['updatedAtCounter']>().toEqualTypeOf<
+      number | undefined
+    >()
+    expectTypeOf<ReplicaRegistration['originId']>().toEqualTypeOf<
+      string | undefined
+    >()
+  })
+
+  it('reports a paused loop', () => {
+    expectTypeOf<'paused'>().toExtend<ReplicaStatus['state']>()
+  })
+
   it('refuses a role other than source', () => {
     expectTypeOf<'target'>().not.toExtend<ReplicaRegistration['role']>()
   })

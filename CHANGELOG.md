@@ -1,20 +1,30 @@
 # @interop/storage-core Changelog
 
+## 0.40.0 - TBD
+
+### Added
+
+- `ReplicaRegistration` gains `pausedAt`, the server-set time a registration's
+  pull loop was paused, and the write stamp members `updatedAt`,
+  `updatedAtCounter` and `originId`, since a registration is now a versioned
+  record a `PUT` at its URL replaces in place. `ReplicaStatus.state` gains
+  `paused`.
+
 ## 0.39.0 - 2026-10-26
 
 ### Added
 
 - `ReplicaStallReason` gains `chunk-listing-obsolete` (a chunked Resource
   rewritten on the source server faster than its chunk set can be pulled) and
-  `source-unavailable` (a request to the source server that keeps failing
-  inside a chunk pull).
+  `source-unavailable` (a request to the source server that keeps failing inside
+  a chunk pull).
 
 ## 0.38.0 - 2026-10-23
 
 ### Changed
 
-- `Action` (and so `ActionInput`) includes `HEAD`, the read action a share
-  grant carries beside `GET`. Servers already accept it.
+- `Action` (and so `ActionInput`) includes `HEAD`, the read action a share grant
+  carries beside `GET`. Servers already accept it.
 
 ## 0.37.0 - 2026-10-22
 

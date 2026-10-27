@@ -1069,9 +1069,18 @@ export type ReplicaRole = 'source'
 /**
  * A replica registration: one source peer of a Space, as a directed edge. It
  * is the body a controller sends to `POST /space/{space_id}/replicas` and the
- * object `GET /space/{space_id}/replicas/{replica_id}` serves back unchanged.
- * Every method on it is controller-only. A registration is per-server state.
- * It is not replicated and not exported, and Delete Space removes it.
+ * object `GET /space/{space_id}/replicas/{replica_id}` serves back, with the
+ * server-derived members added. `PUT` at the registration URL carries the
+ * full record and may change `capability` and `pausedAt` alone: it pauses
+ * and resumes the pull loop, and replaces the pull capability in place, the
+ * registration keeping its `id` and its checkpoint. Every method on it is
+ * controller-only. A registration is per-server state. It is not replicated
+ * and not exported, and Delete Space removes it.
+ *
+ * The registration is a versioned record. It carries the write stamp of its
+ * last write (`updatedAt`, `updatedAtCounter`, `originId`) as server-derived
+ * members, and its generation inside the `ETag` only. A write body's stamp
+ * members are ignored.
  *
  * Replication is one-way. Nothing flows back to the peer without a
  * counterpart registration on the peer's side.
@@ -1098,6 +1107,24 @@ export interface ReplicaRegistration {
    */
   collections?: Array<{ id: string }>
   role: ReplicaRole
+  /**
+   * RFC3339 date-time the pull loop was paused, set by the server's clock
+   * when a `PUT` carries the member on a registration that was not paused,
+   * and kept while it stays paused. Absent means not paused. A `PUT` body
+   * that carries the member pauses; one that omits it resumes. The value a
+   * client sends is ignored.
+   */
+  pausedAt?: string
+  /**
+   * RFC3339 date-time of the registration's last write; with
+   * `updatedAtCounter` and `originId` it is the record's {@link WriteStamp}.
+   * Server-derived.
+   */
+  updatedAt?: string
+  /** the stamp's logical counter; see {@link WriteStamp.updatedAtCounter} */
+  updatedAtCounter?: number
+  /** the store that minted the stamp; see {@link WriteStamp.originId} */
+  originId?: string
 }
 
 /**
@@ -1184,12 +1211,14 @@ export interface ReplicaCollectionStatus {
  *
  * - `idle` -- waiting for the next cycle.
  * - `pulling` -- a cycle is running.
+ * - `paused` -- the registration carries `pausedAt`, and no cycle runs until
+ *   a `PUT` clears it.
  * - `backing-off` -- the peer answered an error, and the loop retries at
  *   `nextPullAt`.
  * - `stalled` -- at least one Collection is stalled.
  */
 export interface ReplicaStatus {
-  state: 'idle' | 'pulling' | 'backing-off' | 'stalled'
+  state: 'idle' | 'pulling' | 'paused' | 'backing-off' | 'stalled'
   /** RFC3339 date-time the last cycle started */
   lastPullAt?: string
   /** RFC3339 date-time the last cycle that reached the peer completed */
