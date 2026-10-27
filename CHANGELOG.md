@@ -1,5 +1,12 @@
 # @interop/storage-core Changelog
 
+## 0.41.0 - TBD
+
+### Added
+
+- `.revocations` in `RESERVED_COLLECTION_IDS`: the system Collection the
+  reference server keeps a Space's zcap revocation records in.
+
 ## 0.40.0 - 2026-10-27
 
 ### Added
