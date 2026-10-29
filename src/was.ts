@@ -70,12 +70,19 @@ export interface ResourceMetaStamp extends WriteStamp {
 
 /**
  * A Space Metadata object (spec "Space Metadata Data Model"), addressable at
- * the reserved `meta` segment of a Space (`/space/{space_id}/meta`). It is the
- * Space's description: the properties stored for the Space, served as one
- * object.
+ * the reserved `meta` segment beneath the Space URL (`/space/{space_id}/meta`
+ * under a base server URL, `/meta` at a single fixed Space served from an
+ * origin root). It is the Space's description: the properties stored for the
+ * Space, served as one object.
  */
 export interface SpaceMetadata {
-  id: string
+  /**
+   * The Space's id at its server. A server assigns one when a Create Space
+   * body omits it. In a Metadata object the server returns, it is absent only
+   * for a single fixed Space, which has no Space id (see the spec's "Single
+   * Fixed Space").
+   */
+  id?: string
   /** e.g. `['Space']` */
   type: string[]
   /** optional human-readable name for the Space (see spec) */
@@ -94,7 +101,8 @@ export interface SpaceMetadata {
   /**
    * absolute URL of the Space, when the server populates it. A Space is a
    * container, so the canonical form carries a trailing slash
-   * (`/space/{space_id}/`).
+   * (`/space/{space_id}/` under a base server URL, the origin root `/` at a
+   * single fixed Space served from there).
    */
   url?: string
   /**

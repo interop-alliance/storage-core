@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   ProblemTypes,
   ProblemStatusCodes,
+  ORIGIN_ROOT_RESERVED_COLLECTION_IDS,
   RESERVED_COLLECTION_IDS,
   RESERVED_RESOURCE_IDS
 } from '../../src/index.js'
@@ -33,5 +34,7 @@ describe('@interop/storage-core', () => {
   it('lists the reserved path segments', () => {
     expect(RESERVED_COLLECTION_IDS.has('export')).toBe(true)
     expect(RESERVED_RESOURCE_IDS.has('quota')).toBe(true)
+    expect(ORIGIN_ROOT_RESERVED_COLLECTION_IDS.has('service')).toBe(true)
+    expect(RESERVED_COLLECTION_IDS.has('service')).toBe(false)
   })
 })

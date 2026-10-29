@@ -1,5 +1,17 @@
 # @interop/storage-core Changelog
 
+## 0.42.0 - TBD
+
+### Added
+
+- `ORIGIN_ROOT_RESERVED_COLLECTION_IDS`: `service`, `spaces` and `space`, the
+  Collection ids reserved at a single fixed Space served from an origin root.
+
+### Changed
+
+- Breaking: `SpaceMetadata.id` is optional. A single fixed Space is served
+  without a Space id.
+
 ## 0.41.0 - 2026-10-27
 
 ### Added

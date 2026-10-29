@@ -390,6 +390,21 @@ export const RESERVED_COLLECTION_IDS = new Set([
 ])
 
 /**
+ * The server-level endpoint segments a server with a base server URL places
+ * beneath it (`{base}service`, `{base}spaces/`, `{base}space/{space_id}/`).
+ * At a single fixed Space served from an origin root, the first path segment
+ * is a Collection id, so these three segments would collide with the
+ * endpoints. The spec reserves them at such a Space and nowhere else. A
+ * client-chosen Collection id matching one of them there MUST be rejected
+ * with 409 `reserved-id`. Elsewhere they are ordinary Collection ids.
+ */
+export const ORIGIN_ROOT_RESERVED_COLLECTION_IDS = new Set([
+  'service',
+  'spaces',
+  'space'
+])
+
+/**
  * Reserved Resource-id path segments (the spec's Reserved Path Segment
  * Registry). A client-chosen Resource id matching one of these would shadow the
  * reserved route at that position, so it MUST be rejected with 409
