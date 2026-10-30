@@ -11,7 +11,9 @@ describe('ServiceDescription', () => {
     const wasEntry = {
       version: '0.5',
       spaces: 'https://was.example/spaces/',
-      features: ['listing', 'policy']
+      features: ['listing', 'policy'],
+      originId: 'z6MkOrigin',
+      serverDid: 'did:webvh:zScid:was.example:space:server:id'
     } satisfies PwsVersionEntry
     const authzEntry = {
       version: '0.1',
@@ -28,6 +30,15 @@ describe('ServiceDescription', () => {
       },
       instance: { name: 'was-teaching-server' }
     }).toExtend<ServiceDescription>()
+  })
+
+  it('advertises the server DID on the core entry, not under instance', () => {
+    expectTypeOf<PwsVersionEntry['serverDid']>().toEqualTypeOf<
+      string | undefined
+    >()
+    expectTypeOf<
+      NonNullable<ServiceDescription['instance']>
+    >().not.toHaveProperty('serverDid')
   })
 
   it('holds any specification entry carrying a version', () => {

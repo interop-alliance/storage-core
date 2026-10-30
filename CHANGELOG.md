@@ -10,6 +10,13 @@
 
 ### Changed
 
+- Breaking (service description wire change): `serverDid` moves from
+  `ServiceDescription.instance` to the core `https://w3id.org/pws` version
+  entry, `PwsVersionEntry.serverDid`, beside `originId`. No alias under
+  `instance`.
+- The `ReplicaStallReason` JSDoc says the token set is closed per replication
+  version, and a reader treats an unrecognized token as stalled for an
+  unrecognized reason.
 - The `ReplicaRegistration`, `ReplicaListing` and `ReplicaStatus` JSDoc no
   longer calls the replicas routes controller-only. The routes admit a root
   invocation by the Space's controller and a delegated invocation whose chain

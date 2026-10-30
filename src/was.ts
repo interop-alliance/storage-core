@@ -1167,8 +1167,9 @@ export type ReplicaSummary = Pick<
  *   inside a chunk pull (a 5xx, a 429, a grant narrowed past the chunk
  *   paths).
  *
- * A reader that meets a reason it does not recognize treats the Collection
- * as stalled for an unrecognized reason.
+ * The token set is closed per replication version. A version adds a token
+ * only by bumping. A reader that meets a reason it does not recognize treats
+ * the Collection as stalled for an unrecognized reason.
  */
 export type ReplicaStallReason =
   | 'clock-bound'
@@ -1358,15 +1359,11 @@ export const REPLICATION_SPEC_ID = 'https://w3id.org/pws/replication'
  *   {@link ServiceDescriptionVersionEntry} per version the server implements.
  *   A client ignores keys it does not know and picks the highest version it
  *   understands under the keys it does.
- * - `instance` -- the operator's optional disclosure of the deployed software
- *   and of this instance's own identity. A client must not gate any protocol
- *   behavior on it. `exportSigningMethod` is the verification method the
- *   instance signs Space archive exports with, a `did:key`, absent when it has
- *   none; `serverDid` is the instance's own DID, a self-hosted `did:webvh`
- *   whose document lists the key of `exportSigningMethod` under
- *   `assertionMethod`, present only once that document resolves and lists the
- *   key that way, so an instance may carry `exportSigningMethod` without
- *   `serverDid`.
+ * - `instance` -- the operator's optional disclosure of the deployed software.
+ *   A client must not gate any protocol behavior on it. `exportSigningMethod`
+ *   is the verification method the instance signs Space archive exports with,
+ *   a `did:key`, absent when it has none. The server's own DID is not here.
+ *   It is {@link PwsVersionEntry.serverDid}, because a client gates on it.
  *
  * Every URL in the document is absolute.
  */
@@ -1379,7 +1376,6 @@ export interface ServiceDescription {
     source?: string
     homepage?: string
     exportSigningMethod?: string
-    serverDid?: string
   }
 }
 
@@ -1414,11 +1410,20 @@ export interface ServiceDescriptionVersionEntry {
  * - `originId` -- the store's origin id, which a replication peer reads when it
  *   registers. It sits on this entry rather than on `instance` because a client
  *   may gate on it, and the spec forbids gating on `instance`.
+ * - `serverDid` -- the server's own `did:webvh`, hosted on the server itself at
+ *   the path `space:server:id`. A controller delegates a replication pull
+ *   capability to this DID, so a client gates on it. A server without one
+ *   cannot hold a replica. The DID document lists the key of
+ *   `instance.exportSigningMethod` under `assertionMethod`, and the member is
+ *   present only once that document resolves and lists the key that way, so a
+ *   server may carry `exportSigningMethod` without `serverDid`. It sits on
+ *   this entry beside `originId` for the same reason.
  */
 export interface PwsVersionEntry extends ServiceDescriptionVersionEntry {
   spaces?: string
   features?: string[]
   originId?: string
+  serverDid?: string
 }
 
 /**
