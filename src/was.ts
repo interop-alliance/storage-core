@@ -1348,12 +1348,13 @@ export interface ImportStats {
  *   understands under the keys it does.
  * - `instance` -- the operator's optional disclosure of the deployed software
  *   and of this instance's own identity. A client must not gate any protocol
- *   behavior on it. `exportSigningKey` is the `did:key` of the key the
- *   instance signs export archives with, absent when it has none; `serverDid`
- *   is the instance's own DID, a self-hosted `did:webvh` whose document lists
- *   `exportSigningKey` under `assertionMethod`, present only once that
- *   document resolves and lists the key that way, so an instance may carry
- *   `exportSigningKey` without `serverDid`.
+ *   behavior on it. `exportSigningMethod` is the verification method the
+ *   instance signs Space archive exports with, a `did:key`, absent when it has
+ *   none; `serverDid` is the instance's own DID, a self-hosted `did:webvh`
+ *   whose document lists the key of `exportSigningMethod` under
+ *   `assertionMethod`, present only once that document resolves and lists the
+ *   key that way, so an instance may carry `exportSigningMethod` without
+ *   `serverDid`.
  *
  * Every URL in the document is absolute.
  */
@@ -1365,7 +1366,7 @@ export interface ServiceDescription {
     version?: string
     source?: string
     homepage?: string
-    exportSigningKey?: string
+    exportSigningMethod?: string
     serverDid?: string
   }
 }

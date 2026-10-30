@@ -1,5 +1,15 @@
 # @interop/storage-core Changelog
 
+## 0.43.0 - TBD
+
+### Changed
+
+- Breaking (service description wire change): `ServiceDescription.instance`'s
+  `exportSigningKey` is renamed `exportSigningMethod`, the member the PWS spec's
+  Instance Disclosure list now fixes. The value is unchanged: the `did:key` of
+  the verification method the instance signs Space archive exports with. No
+  alias for the old name.
+
 ## 0.42.0 - 2026-10-29
 
 ### Added

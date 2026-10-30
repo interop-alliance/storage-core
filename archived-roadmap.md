@@ -315,3 +315,34 @@ member, so a client learns a Space's backends from the object it already reads.
 Import restores the archived object's user-writable members (`type` and `name`)
 only under an invocation of the Space's root capability, and reports which of
 the three outcomes it took.
+
+### SC-12: Rename `instance.exportSigningKey` to `exportSigningMethod`
+
+- status: done (2026-10-30)
+- priority: medium
+- labels: types, service-description, provenance
+- discovered-from: portable-web-spaces-spec WASS-7 (2026-10-29)
+- touches:
+  - storage-core (this repo): `src/was.ts` (the service description's
+    `instance` member and its JSDoc), CHANGELOG.md
+  - was-teaching-server: shipped 2026-10-30 -- WAS-235 (the member it writes
+    on `/service`, its identity module, README, ARCHITECTURE.md and the admin
+    guide)
+  - portable-web-spaces-spec: resolved 2026-10-29 -- the Instance Disclosure
+    list and the Archive provenance section use the new name
+  - was-client: unaffected (nothing in it reads the member)
+- acceptance:
+  - [x] the `instance` type's `exportSigningKey` member is `exportSigningMethod`,
+        with the same `did:key` value and optionality
+  - [x] the JSDoc describes it as the verification method the instance signs
+        Space archives with, and `serverDid`'s JSDoc names it by the new name
+  - [x] CHANGELOG entry names the rename as a wire change to the service
+        description
+
+Context: the service description's `instance` member advertises the key a
+server signs its Space archive exports with. The member was named
+`exportSigningKey`, but its value is a `did:key`, which is a verification
+method identifier rather than key material. The PWS spec renamed the member to
+`exportSigningMethod` on 2026-10-29 so the name says what the value is. This
+is the type the reference server and clients build against, so the rename
+lands here first. No backwards-compatible alias is kept.

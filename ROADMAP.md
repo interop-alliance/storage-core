@@ -1,6 +1,6 @@
 # storage-core Roadmap (open items)
 
-nextAvailableId: 12
+nextAvailableId: 14
 
 Status as of 2026-09-11. Uses the formalized item structure shared with the
 freewallet and was-teaching-server roadmaps (canonical in
@@ -79,8 +79,9 @@ tombstone is never served as a Metadata object.
   - was-teaching-server: unresolved -- the registration routes, the `status`
     sub-resource and the derived `replicas` member (its WAS-176)
   - was-client: unresolved -- the `replicas` member and a registration API
-  - wallet-attached-storage-spec: unresolved -- the replication specification
-    and the Space Metadata object's `replicas` member
+  - wallet-attached-storage-spec: resolved 2026-10-29 -- the replication
+    companion (`replication/spec.md`) and core's Space Metadata object carry
+    these shapes
 - acceptance:
   - [x] `ReplicaRegistration` carries `id`, `fromSpace`, `toSpace`,
         `capability`, optional `collections` and `role`
@@ -116,8 +117,9 @@ and the nested `created` stamp were decided on 2026-10-04.
     is its WAS-226
   - was-client: unresolved -- WCL-137 (pause, resume, and the capability
     replacement on `Space`) builds against these types
-  - portable-web-spaces-spec: unresolved -- decision 0013 amended and WASS-50's
-    text (the pause, the replacement, the delegated route)
+  - portable-web-spaces-spec: resolved 2026-10-29 -- decision 0013 amended and
+    the replication companion's text (the pause, the replacement, the
+    delegated route)
   - freewallet: unresolved -- FW-688 / FW-638's pre-flight reads the replication
     entry by the IRI constant
 - acceptance:
@@ -153,3 +155,48 @@ storage-core or was-client today. The reference server defines its own
 was-client keeps the base spec's id in an internal constant (`PWS_SPEC_ID`,
 `src/internal/service.ts:28`). The design allows the constant on was-client
 instead. It is filed here since the `ServiceDescription` types live here.
+
+### SC-13: `serverDid` moves from `instance` to the core version entry
+
+- status: todo
+- priority: medium
+- labels: types, service-description, replication
+- discovered-from: portable-web-spaces-spec WASS-50 (2026-10-29)
+- touches:
+  - storage-core (this repo): `src/was.ts` (`ServiceDescription.instance`,
+    `PwsVersionEntry` and both JSDoc blocks; the `ReplicaCollectionStatus`
+    stall JSDoc), the node test over the service description shapes,
+    CHANGELOG.md
+  - was-teaching-server: unresolved -- WAS-238 (serves the member on the core
+    entry and `url` on the replication entry)
+  - was-client: unresolved -- WCL-144 (`ServiceInfo.entry` exposes it and the
+    replica docs point at it)
+  - freewallet: unresolved -- FW-638's pre-flight reads the DID off the core
+    entry
+  - portable-web-spaces-spec: resolved 2026-10-29 -- the core version entry
+    defines `serverDid` beside `originId`, and the Instance Disclosure list
+    does not carry it
+- acceptance:
+  - [ ] `PwsVersionEntry` gains `serverDid?: string`, documented as the
+        server's own `did:webvh` at the path `space:server:id`, the grantee of
+        a replication pull capability, placed here beside `originId` because a
+        client gates on it
+  - [ ] `ServiceDescription.instance` loses `serverDid`, and its JSDoc no
+        longer describes the DID (the export signing method's description
+        stays, under SC-12's name)
+  - [ ] The `ReplicaCollectionStatus.stall.reason` JSDoc says the token set is
+        closed per replication version and a reader treats an unknown token as
+        "stalled for an unrecognized reason"
+  - [ ] The node test pins the member on the entry and its absence from
+        `instance`
+  - [ ] CHANGELOG entry names the move as a wire change to the service
+        description
+
+Context: the replication companion decided on 2026-10-29 where a server's DID
+is advertised. The reference server put it under `instance`, but core says
+`instance` is optional operator disclosure a client may not gate on, and a
+wallet gates on the DID: it is the `controller` it delegates the pull
+capability to, and a server without one cannot hold a replica. So the member
+sits on the core `https://w3id.org/pws` entry, as `originId` does and for the
+same reason. These are the types the server and clients build against, so the
+move lands here first. No alias under `instance` is kept.
