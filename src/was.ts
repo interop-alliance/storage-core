@@ -1081,8 +1081,11 @@ export type ReplicaRole = 'source'
  * server-derived members added. `PUT` at the registration URL carries the
  * full record and may change `capability` and `pausedAt` alone: it pauses
  * and resumes the pull loop, and replaces the pull capability in place, the
- * registration keeping its `id` and its checkpoint. Every method on it is
- * controller-only. A registration is per-server state. It is not replicated
+ * registration keeping its `id` and its checkpoint. Every method on it
+ * admits a root invocation by the Space's controller, and a delegated
+ * invocation whose chain roots in the Space's root. A delegated `POST` is
+ * admitted only for a registration whose `fromSpace` is already registered
+ * on the Space. A registration is per-server state. It is not replicated
  * and not exported, and Delete Space removes it.
  *
  * The registration is a versioned record. It carries the write stamp of its
@@ -1106,7 +1109,8 @@ export interface ReplicaRegistration {
   /**
    * The pull capability the Space's controller delegated to this server's
    * DID. Its chain roots in the peer Space and its `allowedAction` lies within
-   * `GET` and `HEAD`. A server serves it back to the controller only.
+   * `GET` and `HEAD`. A server serves it back on the registration routes
+   * alone.
    */
   capability: IDelegatedZcap
   /**
@@ -1177,7 +1181,8 @@ export type ReplicaStallReason =
 
 /**
  * The listing `GET /space/{space_id}/replicas` serves: every registration on
- * the Space, unpaginated. Controller-only, like the records it lists.
+ * the Space, unpaginated. It admits the invocations the records it lists
+ * admit.
  */
 export interface ReplicaListing {
   url: string
@@ -1213,9 +1218,9 @@ export interface ReplicaCollectionStatus {
 
 /**
  * The runtime state of a registration's pull loop, as
- * `GET /space/{space_id}/replicas/{replica_id}/status` serves it. It is
- * controller-only and uncacheable, and it is not part of the
- * {@link ReplicaRegistration} record.
+ * `GET /space/{space_id}/replicas/{replica_id}/status` serves it. It admits
+ * the invocations the registration admits, it is uncacheable, and it is not
+ * part of the {@link ReplicaRegistration} record.
  *
  * - `idle` -- waiting for the next cycle.
  * - `pulling` -- a cycle is running.
@@ -1334,6 +1339,13 @@ export interface ImportStats {
 }
 
 /**
+ * The replication companion specification's persistent identifier, the key
+ * of its entry in {@link ServiceDescription.specs}. A server that implements
+ * replication lists at least one version under it.
+ */
+export const REPLICATION_SPEC_ID = 'https://w3id.org/pws/replication'
+
+/**
  * The service description (spec "Service Description Data Model"): the
  * server-wide JSON document a client reads before its first structural
  * request, found by following the `Link: <...>; rel="service"` header every
@@ -1412,7 +1424,7 @@ export interface PwsVersionEntry extends ServiceDescriptionVersionEntry {
 /**
  * The zCap authorization profile's version entry in a
  * {@link ServiceDescription} (profile "Service Description Entry",
- * https://w3c-ccg.github.io/wallet-attached-storage-spec/authz-profile/#service-description-entry).
+ * https://w3c-ccg.github.io/portable-web-spaces-spec/authz-profile/#service-description-entry).
  * The entry advertises no policy types.
  *
  * - `signatureAlgorithms` -- the JSON Web Algorithms identifiers accepted on

@@ -3,11 +3,16 @@ import {
   ProblemTypes,
   ProblemStatusCodes,
   ORIGIN_ROOT_RESERVED_COLLECTION_IDS,
+  REPLICATION_SPEC_ID,
   RESERVED_COLLECTION_IDS,
   RESERVED_RESOURCE_IDS
 } from '../../src/index.js'
 
 describe('@interop/storage-core', () => {
+  it('exposes the replication spec identifier', () => {
+    expect(REPLICATION_SPEC_ID).toBe('https://w3id.org/pws/replication')
+  })
+
   it('exposes problem-type URIs anchored into the spec', () => {
     expect(ProblemTypes.NOT_FOUND).toBe('https://w3id.org/pws#not-found')
     expect(ProblemTypes.QUOTA_EXCEEDED).toBe(

@@ -1,5 +1,20 @@
 # @interop/storage-core Changelog
 
+## 0.44.0 - TBD
+
+### Added
+
+- `REPLICATION_SPEC_ID`: the replication companion spec's persistent identifier,
+  `https://w3id.org/pws/replication`, the key of its `ServiceDescription.specs`
+  entry.
+
+### Changed
+
+- The `ReplicaRegistration`, `ReplicaListing` and `ReplicaStatus` JSDoc no
+  longer calls the replicas routes controller-only. The routes admit a root
+  invocation by the Space's controller and a delegated invocation whose chain
+  roots in the Space's root.
+
 ## 0.43.0 - 2026-10-30
 
 ### Changed
