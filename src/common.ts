@@ -367,12 +367,11 @@ export interface LinkSet {
 
 /**
  * Reserved Collection-id path segments (the spec's Reserved Path Segment
- * Registry, plus the reference server's non-spec `import` endpoint). A
- * client-chosen Collection id matching one of these would shadow the reserved
- * route at that position (e.g. a Collection named `export` would shadow
- * `/space/{id}/export`), so it MUST be rejected with 409 `reserved-id`.
- * `.revocations` is not a route: it is the system Collection the reference
- * server keeps a Space's zcap revocation records in.
+ * Registry). A client-chosen Collection id matching one of these would shadow
+ * the reserved route at that position (e.g. a Collection named `export` would
+ * shadow `/space/{id}/export`), so it MUST be rejected with 409 `reserved-id`.
+ * `.revocations` is not a route and not in the registry: it is the system
+ * Collection the reference server keeps a Space's zcap revocation records in.
  */
 export const RESERVED_COLLECTION_IDS = new Set([
   'backends',

@@ -1,6 +1,6 @@
 # storage-core Roadmap (open items)
 
-nextAvailableId: 14
+nextAvailableId: 15
 
 Status as of 2026-09-11. Uses the formalized item structure shared with the
 freewallet and web-spaces-server roadmaps (canonical in
@@ -24,3 +24,27 @@ in either file, reset it to one past the highest id across both, then take it.
 `in-progress`, `draft` (no actionable done-state yet -- blocked externally or a
 parking record); `done` items move to [archived-roadmap.md](archived-roadmap.md)
 once shipped.
+
+---
+
+## Docs, tests, and cleanup
+
+Documentation and code hygiene with no behavior change for a consumer.
+
+### SC-14: Rename the epoch-configuration state type in a doc comment
+
+- status: todo
+- priority: low
+- labels: docs, rename
+- discovered-from: pws-client WCL-151 (2026-10-30)
+- blocked-by: WASS-84
+- touches:
+  - pws-client (WCL-151 changes `EPOCH_CONFIGURATION_STATE_TYPE` from
+    `WasEpochConfiguration` to `PwsEpochConfiguration`)
+  - portable-web-spaces-spec (WASS-84 renames the value in spec text)
+- acceptance:
+  - [ ] The doc comment at `src/was.ts:215` names `PwsEpochConfiguration`
+        instead of `WasEpochConfiguration`
+  - [ ] No other occurrence of `WasEpochConfiguration` remains in `src/`
+
+The comment only names the value. No type or runtime code changes.
