@@ -1109,7 +1109,7 @@ export interface ReplicaRegistration {
   /**
    * The pull capability the Space's controller delegated to this server's
    * DID. Its chain roots in the peer Space and its `allowedAction` lies within
-   * `GET` and `HEAD`. A server serves it back on the registration routes
+   * `['GET']`. A server serves it back on the registration routes
    * alone.
    */
   capability: IDelegatedZcap

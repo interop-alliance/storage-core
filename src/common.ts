@@ -14,9 +14,11 @@
 
 /**
  * A capability action -- an HTTP verb in its canonical uppercase form, as it
- * appears in the signed zcap. WAS servers match actions case-sensitively.
+ * appears in the signed zcap. WAS servers match actions case-sensitively. The
+ * vocabulary is four tokens. A HEAD request's invocation names `GET`, and a
+ * capability that permits `GET` permits HEAD. `HEAD` is not an action.
  */
-export type Action = 'GET' | 'HEAD' | 'PUT' | 'POST' | 'DELETE'
+export type Action = 'GET' | 'PUT' | 'POST' | 'DELETE'
 
 /**
  * The action input accepted by delegation helpers: canonical uppercase or

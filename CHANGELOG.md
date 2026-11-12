@@ -1,5 +1,16 @@
 # @interop/storage-core Changelog
 
+## 0.45.0 - TBD
+
+### Changed
+
+- Breaking: `Action` drops `'HEAD'` and is now
+  `'GET' | 'PUT' | 'POST' | 'DELETE'`. A HEAD request's invocation names `GET`,
+  and a capability that permits `GET` permits HEAD. `ActionInput` narrows with
+  it.
+- The `ReplicaRegistration.capability` JSDoc names `['GET']` as its action
+  limit.
+
 ## 0.44.0 - 2026-10-30
 
 ### Added
