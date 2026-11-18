@@ -1,5 +1,12 @@
 # @interop/storage-core Changelog
 
+## 0.46.1 - TBD
+
+### Added
+
+- `isCreatedBy`, a guard for a recorded `createdBy` list. It accepts a non-empty
+  array whose entries are all strings starting with `did:`.
+
 ## 0.46.0 - 2026-11-17
 
 ### Changed

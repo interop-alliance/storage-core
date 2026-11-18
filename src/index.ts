@@ -10,6 +10,7 @@
 export * from './collectionTombstone.js'
 export * from './common.js'
 export * from './contentType.js'
+export * from './createdBy.js'
 export * from './resourceLog.js'
 export * from './was.js'
 export * from './writeStamp.js'
