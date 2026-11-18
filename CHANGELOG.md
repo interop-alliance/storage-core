@@ -1,5 +1,16 @@
 # @interop/storage-core Changelog
 
+## 0.46.0 - TBD
+
+### Changed
+
+- Breaking (wire change): `createdBy` on `SpaceMetadata`, `CollectionMetadata`,
+  `ResourceMetadata` and `ResourceChangeDocument` is now `IDID[]`, the
+  delegation chain the record was created under. A root invocation lists the
+  invoker alone. A delegated create lists each delegated capability's controller
+  in delegation order, the invoker last, and leaves out the root capability's
+  controller.
+
 ## 0.45.0 - 2026-11-12
 
 ### Changed

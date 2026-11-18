@@ -90,14 +90,18 @@ export interface SpaceMetadata {
   /** the `did:key` that owns (controls) the Space */
   controller: IDID
   /**
-   * DID of the party whose capability invocation created the Space.
-   * Server-managed and read-only: a value supplied in a write body is ignored,
-   * and the recorded value is preserved across later writes. Distinct from
-   * `controller` -- under delegated provisioning the creator need not be the
-   * owner. OPTIONAL (spec "Space Metadata Data Model"): an absent value means
-   * "not recorded", not "no creator".
+   * The DIDs of the delegation chain the Space was created under, always a
+   * list. A create under a root invocation lists the invoker alone. A create
+   * under a delegated capability lists the controller of each delegated
+   * capability in the verified chain, in delegation order, so the last entry
+   * is the invoker. The root capability's controller is left out of that
+   * list. Server-managed and read-only: a value supplied in a write body is
+   * ignored, and the recorded list is preserved across later writes. Distinct
+   * from `controller` -- under delegated provisioning the creator need not be
+   * the owner. OPTIONAL (spec "Space Metadata Data Model"): an absent value
+   * means "not recorded", not "no creator".
    */
-  createdBy?: IDID
+  createdBy?: IDID[]
   /**
    * absolute URL of the Space, when the server populates it. A Space is a
    * container, so the canonical form carries a trailing slash
@@ -364,12 +368,13 @@ export interface CollectionMetadata {
   type: string[]
   name?: string
   /**
-   * DID of the party whose capability invocation created the Collection.
-   * Server-managed and read-only, on the same terms as the Space's `createdBy`,
-   * and not settable through a write to this object. OPTIONAL (spec
-   * "Collection Metadata Data Model").
+   * The DIDs of the delegation chain the Collection was created under, the
+   * same list the Space's `createdBy` describes (the invoker last).
+   * Server-managed and read-only, on the same terms as the Space's
+   * `createdBy`, and not settable through a write to this object. OPTIONAL
+   * (spec "Collection Metadata Data Model").
    */
-  createdBy?: IDID
+  createdBy?: IDID[]
   /**
    * The application the Collection was provisioned for (the AS2 `generator`
    * sense: the application that generated an object), see
@@ -378,8 +383,8 @@ export interface CollectionMetadata {
    * and persisted by the server. An update carrying `generator` replaces the
    * whole object, and an update omitting it keeps the stored value. A
    * controller assertion, not server-verified: contrast the server-observed,
-   * read-only `createdBy`, which under delegated provisioning names the invoker
-   * (the wallet user), not the application. OPTIONAL (spec "Collection Metadata
+   * read-only `createdBy`, whose last entry under delegated provisioning is the
+   * invoker (the wallet user), not the application. OPTIONAL (spec "Collection Metadata
    * Data Model").
    */
   generator?: CollectionGenerator
@@ -757,11 +762,12 @@ export interface ResourceChangeDocument extends ChangeDocumentBase {
    */
   metaEtag?: string
   /**
-   * DID of the Resource's creator, when one was recorded. Rides the feed so a
-   * replica learns provenance without fetching `/meta` per Resource; a
-   * tombstone keeps it. See {@link ResourceMetadata.createdBy}.
+   * The DIDs of the delegation chain the Resource was created under, when one
+   * was recorded. Rides the feed so a replica learns provenance without
+   * fetching `/meta` per Resource; a tombstone keeps it. See
+   * {@link ResourceMetadata.createdBy}.
    */
-  createdBy?: IDID
+  createdBy?: IDID[]
   /**
    * The key-epoch id the Resource was encrypted under, when the writer
    * declared one (see {@link ResourceMetadata.epoch}). Rides the feed so a
@@ -945,12 +951,13 @@ export interface ResourceMetadata {
    */
   meta?: ResourceMetaStamp
   /**
-   * DID of the party whose capability invocation created the Resource. Set on
-   * the first write and preserved across later writes, so it names the creator
+   * The DIDs of the delegation chain the Resource was created under, the same
+   * list the Space's `createdBy` describes (the invoker last). Set on the
+   * first write and preserved across later writes, so it names the creator
    * rather than the last writer. Server-managed and read-only: it is not
    * settable through Update Resource Metadata.
    */
-  createdBy?: IDID
+  createdBy?: IDID[]
   /**
    * The key-epoch id the Resource's content was encrypted under (an id from
    * the Collection's `encryption.epochs`), on an encrypted multi-recipient
