@@ -1,4 +1,5 @@
 import { describe, it, expectTypeOf } from 'vitest'
+import { AUTHZ_PROFILE_SPEC_ID, PWS_SPEC_ID } from '../../src/index.js'
 import type {
   ServiceDescription,
   ServiceDescriptionVersionEntry,
@@ -18,13 +19,14 @@ describe('ServiceDescription', () => {
     const authzEntry = {
       version: '0.1',
       signatureAlgorithms: ['EdDSA'],
-      zcapCryptosuites: ['Ed25519Signature2020', 'eddsa-jcs-2022']
+      zcapCryptosuites: ['Ed25519Signature2020', 'eddsa-jcs-2022'],
+      features: ['did-url-targets']
     } satisfies AuthzProfileVersionEntry
     expectTypeOf({
       url: 'https://was.example/service',
       specs: {
-        'https://w3id.org/pws': [wasEntry],
-        'https://w3id.org/pws/authz-profile': [authzEntry],
+        [PWS_SPEC_ID]: [wasEntry],
+        [AUTHZ_PROFILE_SPEC_ID]: [authzEntry],
         // another specification's entry, with members this package does not name
         'https://example.org/other-spec': [{ version: '1.2', endpoint: 'x' }]
       },
@@ -39,6 +41,12 @@ describe('ServiceDescription', () => {
     expectTypeOf<
       NonNullable<ServiceDescription['instance']>
     >().not.toHaveProperty('serverDid')
+  })
+
+  it('lists feature tokens on the authorization profile entry', () => {
+    expectTypeOf<AuthzProfileVersionEntry['features']>().toEqualTypeOf<
+      string[] | undefined
+    >()
   })
 
   it('holds any specification entry carrying a version', () => {

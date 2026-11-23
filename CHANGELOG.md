@@ -1,5 +1,16 @@
 # @interop/storage-core Changelog
 
+## 0.47.0 - TBD
+
+### Added
+
+- `PWS_SPEC_ID`, `AUTHZ_PROFILE_SPEC_ID`, `ENCRYPTED_COLLECTIONS_SPEC_ID`,
+  `CLIENT_ANNEX_SPEC_ID` and `WALLET_PROFILE_SPEC_ID`, the persistent
+  identifiers that key each specification's entry in `ServiceDescription.specs`,
+  beside the existing `REPLICATION_SPEC_ID`.
+- `AuthzProfileVersionEntry.features`, the optional list of feature tokens the
+  authorization profile entry carries, such as `did-url-targets`.
+
 ## 0.46.1 - 2026-11-18
 
 ### Added

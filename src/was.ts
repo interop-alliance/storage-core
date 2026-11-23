@@ -1354,6 +1354,39 @@ export interface ImportStats {
 export const REPLICATION_SPEC_ID = 'https://w3id.org/pws/replication'
 
 /**
+ * The Portable Web Spaces specification's persistent identifier, the key of
+ * its entry in {@link ServiceDescription.specs}. Each version listed under it
+ * is a {@link PwsVersionEntry}.
+ */
+export const PWS_SPEC_ID = 'https://w3id.org/pws'
+
+/**
+ * The zCap authorization profile's persistent identifier, the key of its
+ * entry in {@link ServiceDescription.specs}. Each version listed under it is
+ * an {@link AuthzProfileVersionEntry}.
+ */
+export const AUTHZ_PROFILE_SPEC_ID = 'https://w3id.org/pws/authz-profile'
+
+/**
+ * The encrypted collections companion specification's persistent identifier,
+ * the key of its entry in {@link ServiceDescription.specs}.
+ */
+export const ENCRYPTED_COLLECTIONS_SPEC_ID =
+  'https://w3id.org/pws/encrypted-collections'
+
+/**
+ * The client annex profile's persistent identifier, the key of its entry in
+ * {@link ServiceDescription.specs}.
+ */
+export const CLIENT_ANNEX_SPEC_ID = 'https://w3id.org/pws/client-annex'
+
+/**
+ * The wallet profile's persistent identifier, the key of its entry in
+ * {@link ServiceDescription.specs}.
+ */
+export const WALLET_PROFILE_SPEC_ID = 'https://w3id.org/pws/wallet-profile'
+
+/**
  * The service description (spec "Service Description Data Model"): the
  * server-wide JSON document a client reads before its first structural
  * request, found by following the `Link: <...>; rel="service"` header every
@@ -1414,6 +1447,8 @@ export interface ServiceDescriptionVersionEntry {
  *   such as `changes-query`. The vocabulary is open and additive: a client
  *   ignores tokens it does not recognize, and an absent token means the server
  *   does not support that section.
+ *   The authorization profile lists its own tokens on
+ *   {@link AuthzProfileVersionEntry.features}.
  * - `originId` -- the store's origin id, which a replication peer reads when it
  *   registers. It sits on this entry rather than on `instance` because a client
  *   may gate on it, and the spec forbids gating on `instance`.
@@ -1443,8 +1478,15 @@ export interface PwsVersionEntry extends ServiceDescriptionVersionEntry {
  *   capability invocations (`EdDSA` for Ed25519).
  * - `zcapCryptosuites` -- the cryptosuites accepted on capability delegation
  *   proofs, such as `eddsa-jcs-2022`.
+ * - `features` -- tokens naming the optional sections of the profile the
+ *   server implements, such as `did-url-targets`. The tokens belong to the
+ *   profile, so a client reads them through this entry, the one keyed by
+ *   {@link AUTHZ_PROFILE_SPEC_ID}. They are separate from the tokens on
+ *   {@link PwsVersionEntry.features}. A client ignores tokens it does not
+ *   recognize.
  */
 export interface AuthzProfileVersionEntry extends ServiceDescriptionVersionEntry {
   signatureAlgorithms?: string[]
   zcapCryptosuites?: string[]
+  features?: string[]
 }

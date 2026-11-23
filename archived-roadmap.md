@@ -537,3 +537,55 @@ first. No alias under `instance` is kept.
 2026-10-30: archived. The type move, the JSDoc, the test and the CHANGELOG entry
 landed in 0.44.0; the server, was-client and freewallet items ride WSS-238,
 WCL-144 and FW-638 in their own repos.
+
+### SC-15: Export one identifier constant per service description specification, and a `features` member on the authorization profile entry
+
+- status: done (2026-11-23)
+- priority: medium
+- labels: service-description, constants, authorization
+- discovered-from: web-spaces-server WSS-245 (2026-11-23)
+- touches:
+  - storage-core (this repo): `src/was.ts` (beside `REPLICATION_SPEC_ID`,
+    `AuthzProfileVersionEntry`), the package exports, CHANGELOG.md
+  - pws-client: WCL-107 imports the constants and reads the new member through
+    `hasFeature({ spec, feature })`. The client drops its own `PWS_SPEC_ID` and
+    re-exports the constants
+  - web-spaces-server: WSS-279 imports the constants in place of its local
+    `*_IDENTIFIER` constants and drops its local `& { features: string[] }` type
+    addition in `src/serviceDescription.ts`
+  - pws-conformance-suite: PWSCS-39 reads the authorization profile entry by the
+    same identifier
+- acceptance:
+  - [x] `PWS_SPEC_ID`, `AUTHZ_PROFILE_SPEC_ID`, `ENCRYPTED_COLLECTIONS_SPEC_ID`,
+        `CLIENT_ANNEX_SPEC_ID` and `WALLET_PROFILE_SPEC_ID` are exported on the
+        pattern of the existing `REPLICATION_SPEC_ID`, each with a doc comment
+        naming the specification and the `specs` key it is
+  - [x] The values are `https://w3id.org/pws`,
+        `https://w3id.org/pws/authz-profile`,
+        `https://w3id.org/pws/encrypted-collections`,
+        `https://w3id.org/pws/client-annex` and
+        `https://w3id.org/pws/wallet-profile`
+  - [x] `AuthzProfileVersionEntry` gains `features?: string[]`, with a doc
+        comment that says its tokens are read through the entry of that
+        specification
+  - [x] A test pins each constant value
+  - [x] CHANGELOG notes the new exports and the member. Release and publish are
+        the maintainer's
+
+Context: the service description keys its `specs` map by persistent identifier,
+and each consumer repeats those strings in its own constant. pws-client has a
+local `PWS_SPEC_ID`, web-spaces-server has `*_IDENTIFIER` constants in
+`src/config.default.ts`, and the conformance suite writes the strings out. Only
+the replication identifier is exported here. One constant per specification
+removes the copies. The authorization profile entry also needs a `features`
+member, since the server now lists `did-url-targets` there (see
+web-spaces-server `decisions/0009-did-url-invocation-targets.md`). The server
+widens the type locally today, which this item makes unnecessary.
+
+Settled by the maintainer on 2026-11-23: the constant names above, and the
+`features?: string[]` member. The follow-ups are the three consumer items named
+under `touches`.
+
+2026-11-23: archived. The constants, the `features` member, the tests and the
+CHANGELOG entry landed for 0.47.0. The consumer items ride WCL-107, WSS-279 and
+PWSCS-39 in their own repos.
