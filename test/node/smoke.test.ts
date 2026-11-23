@@ -1,15 +1,27 @@
 import { describe, it, expect } from 'vitest'
 import {
+  AUTHZ_PROFILE_SPEC_ID,
+  CLIENT_ANNEX_SPEC_ID,
+  ENCRYPTED_COLLECTIONS_SPEC_ID,
   ProblemTypes,
   ProblemStatusCodes,
   ORIGIN_ROOT_RESERVED_COLLECTION_IDS,
+  PWS_SPEC_ID,
   REPLICATION_SPEC_ID,
   RESERVED_COLLECTION_IDS,
-  RESERVED_RESOURCE_IDS
+  RESERVED_RESOURCE_IDS,
+  WALLET_PROFILE_SPEC_ID
 } from '../../src/index.js'
 
 describe('@interop/storage-core', () => {
-  it('exposes the replication spec identifier', () => {
+  it('exposes one identifier per service description specification', () => {
+    expect(PWS_SPEC_ID).toBe('https://w3id.org/pws')
+    expect(AUTHZ_PROFILE_SPEC_ID).toBe('https://w3id.org/pws/authz-profile')
+    expect(ENCRYPTED_COLLECTIONS_SPEC_ID).toBe(
+      'https://w3id.org/pws/encrypted-collections'
+    )
+    expect(CLIENT_ANNEX_SPEC_ID).toBe('https://w3id.org/pws/client-annex')
+    expect(WALLET_PROFILE_SPEC_ID).toBe('https://w3id.org/pws/wallet-profile')
     expect(REPLICATION_SPEC_ID).toBe('https://w3id.org/pws/replication')
   })
 
