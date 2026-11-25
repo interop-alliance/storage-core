@@ -1,5 +1,12 @@
 # @interop/storage-core Changelog
 
+## 0.48.0 - TBD
+
+### Added
+
+- `AuthzProfileVersionEntry.zcapCaveats`, the optional list of capability caveat
+  types the server enforces, such as `OwnResourcesOnly`.
+
 ## 0.47.0 - 2026-11-23
 
 ### Added

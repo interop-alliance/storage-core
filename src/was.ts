@@ -1484,9 +1484,15 @@ export interface PwsVersionEntry extends ServiceDescriptionVersionEntry {
  *   {@link AUTHZ_PROFILE_SPEC_ID}. They are separate from the tokens on
  *   {@link PwsVersionEntry.features}. A client ignores tokens it does not
  *   recognize.
+ * - `zcapCaveats` -- the capability caveat types the server enforces, such as
+ *   `OwnResourcesOnly`. The member's presence, even as an empty array, claims
+ *   that the server refuses a capability chain carrying a caveat type it
+ *   does not understand. A server that omits the member may ignore caveats,
+ *   so a client reads it before minting a capability that carries one.
  */
 export interface AuthzProfileVersionEntry extends ServiceDescriptionVersionEntry {
   signatureAlgorithms?: string[]
   zcapCryptosuites?: string[]
   features?: string[]
+  zcapCaveats?: string[]
 }
